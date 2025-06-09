@@ -26,7 +26,7 @@ public class EmailService {
         try{
 
             Context context = new Context();
-            context.setVariable("name", "HeroOut");
+            context.setVariable("name", "New Member");
             String html =templateEngine.process("emailtemplete", context);
             // Creating a simple mail message
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();

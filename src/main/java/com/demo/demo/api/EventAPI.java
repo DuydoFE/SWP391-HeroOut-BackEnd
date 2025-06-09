@@ -2,6 +2,7 @@ package com.demo.demo.api;
 
 import com.demo.demo.entity.Event;
 import com.demo.demo.service.EventService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
+@SecurityRequirement(name = "api")
 public class EventAPI {
 
     @Autowired

@@ -1,8 +1,10 @@
 package com.demo.demo.service;
 
+import com.demo.demo.dto.EventRequest;
 import com.demo.demo.entity.Event;
 import com.demo.demo.repository.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +15,17 @@ public class EventService {
 
     @Autowired
     EventRepository eventRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
     }
 
-    public Event createNewEvent(Event event) {
-        return eventRepository.save(event);
-    }
+        public Event createNewEvent(EventRequest eventRequest) {
+            Event event = modelMapper.map(eventRequest, Event.class);
+            return eventRepository.save(event);
+        }
 
     public Event getEventById(Long id) {
         return eventRepository.findById(id)

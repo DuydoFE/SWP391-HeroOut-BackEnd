@@ -1,5 +1,6 @@
 package com.demo.demo.api;
 
+import com.demo.demo.dto.EventRequest;
 import com.demo.demo.entity.Event;
 import com.demo.demo.service.EventService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,8 +20,8 @@ public class EventAPI {
 
     // CREATE
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
-        Event created = eventService.createNewEvent(event);
+    public ResponseEntity<Event> createEvent(@RequestBody EventRequest eventRequest) {
+        Event created = eventService.createNewEvent(eventRequest);
         return ResponseEntity.ok(created);
     }
 

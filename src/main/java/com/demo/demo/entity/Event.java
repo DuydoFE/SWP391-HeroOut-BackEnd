@@ -1,13 +1,13 @@
 package com.demo.demo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -17,6 +17,7 @@ import lombok.Setter;
 @Table(name = "Event")
 public class Event {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column(nullable = false, columnDefinition = "Nvarchar(200)")
     private String title;
@@ -24,9 +25,9 @@ public class Event {
     private String description;
     @Column(nullable = false, columnDefinition = "Nvarchar(200)")
     private String location;
-    @Column(nullable = false)
-    private String startTime;
-    @Column(nullable = false)
-    private String endTime;
+    @Column(nullable = false,columnDefinition = "DATETIME")
+    private LocalDateTime startTime;
+    @Column(nullable = false, columnDefinition = "DATETIME")
+    private LocalDateTime endTime;
 
 }

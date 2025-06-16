@@ -17,18 +17,24 @@ public class Account implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public long id;
+    private long id;
 
-    public String email;
-    public String phone;
-    public String password;
-    public String fullName;
-
-    @Enumerated(EnumType.STRING)
-    public Gender gender;
+    private String email;
+    private String phone;
+    private String password;
+    private String fullName;
 
     @Enumerated(EnumType.STRING)
-    public Role role;
+    private Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @OneToOne(mappedBy = "account")
+    private Member member;
+
+    @OneToOne(mappedBy = "account")
+    private Consultant consultant;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -38,10 +38,10 @@ public class AuthenticationService implements UserDetailsService {
     EmailService emailService;
 
     public Account register(Account account) {
-        account.password = passwordEncoder.encode(account.getPassword());
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
         Account newAccount = authenticationRepository.save(account);
         EmailDetail emailDetail = new EmailDetail();
-        emailDetail.setRecippient(account.email);
+        emailDetail.setRecippient(account.getEmail());
         emailDetail.setSubject("Welcome to HeroOut");
         emailService.sendMail(emailDetail);
 

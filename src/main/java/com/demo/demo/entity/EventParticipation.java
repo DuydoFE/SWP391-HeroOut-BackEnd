@@ -22,9 +22,13 @@ public class EventParticipation {
     @Column(nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime checkInTime;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "event_id")
-    Event event;
+    private Event event;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @Column(nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime checkOutTime;

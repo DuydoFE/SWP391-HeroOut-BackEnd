@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AuthenticationService implements UserDetailsService {
 
@@ -72,4 +74,15 @@ public class AuthenticationService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return authenticationRepository.findAccountByEmail(email);
     }
+    // --- Phương thức mới để lấy Account theo ID ---
+    public Account getAccountById(long id) {
+        // JpaRepository cung cấp phương thức findById trả về Optional
+        Optional<Account> accountOptional = authenticationRepository.findById(id);
+
+        // Trả về Account nếu tìm thấy, ngược lại trả về null.
+        // API Controller sẽ xử lý null để trả về 404 Not Found.
+        return accountOptional.orElse(null);
+    }
+    // ----------------------------------------------
 }
+

@@ -2,15 +2,14 @@ package com.demo.demo.entity;
 
 import com.demo.demo.enums.Gender;
 import com.demo.demo.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Entity
@@ -39,8 +38,12 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(mappedBy = "account")
-    private Consultant consultant;
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Set<Consultant> consultants = new HashSet<>();
+
+    @OneToMany(mappedBy = "account")
+    private List<Schedule> schedules;
 
     @OneToMany(mappedBy = "account")
     private List<Appointment> appointments;

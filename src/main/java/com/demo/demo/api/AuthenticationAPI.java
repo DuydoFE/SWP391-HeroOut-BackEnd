@@ -1,5 +1,6 @@
 package com.demo.demo.api;
 
+import com.demo.demo.dto.AccountRequest;
 import com.demo.demo.dto.AccountResponse;
 import com.demo.demo.dto.LoginRequest;
 import com.demo.demo.entity.Account;
@@ -24,7 +25,7 @@ public class AuthenticationAPI {
     // api > service > repository
 
     @PostMapping("/api/register")
-    public ResponseEntity register(@RequestBody Account account){
+    public ResponseEntity register(@RequestBody AccountRequest account){
         Account newAccount = authenticationService.register(account);
         // Có thể kiểm tra nếu đăng ký thất bại và trả về lỗi
         if (newAccount == null) {

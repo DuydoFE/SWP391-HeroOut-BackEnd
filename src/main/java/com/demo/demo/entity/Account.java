@@ -43,9 +43,11 @@ public class Account implements UserDetails {
     private Set<Consultant> consultants = new HashSet<>();
 
     @OneToMany(mappedBy = "account")
+    @JsonIgnore
     private List<Schedule> schedules;
 
     @OneToMany(mappedBy = "account")
+    @JsonIgnore
     private List<Appointment> appointments;
 
     @OneToMany(mappedBy = "account")

@@ -25,11 +25,10 @@ public class Slot {
    boolean isDeleted = false;
 
 
-    @ManyToOne
+    @OneToMany
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
-    @OneToMany(mappedBy = "slot")
-    private List<Appointment> appointments;
+
 
 }

@@ -24,8 +24,8 @@ public class Appointment {
     AppointmentStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "consultant_id")
-    Consultant consultant;
+    @JoinColumn(name = "account_id")
+    Account account;
 
 
 }

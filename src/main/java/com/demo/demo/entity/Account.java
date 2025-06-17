@@ -44,11 +44,11 @@ public class Account implements UserDetails {
 
     @OneToMany(mappedBy = "account")
     @JsonIgnore
-    private List<Schedule> schedules;
+    List<Schedule> schedules;
 
     @OneToMany(mappedBy = "account")
     @JsonIgnore
-    private List<Appointment> appointments;
+   List<Appointment> appointments;
 
     @OneToMany(mappedBy = "account")
     private List<EventParticipation> eventParticipations;

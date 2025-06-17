@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalTime;
+import java.util.List;
 
 
 @Entity
@@ -28,6 +29,6 @@ public class Slot {
 
     @OneToMany(mappedBy = "slot")
     @JsonIgnore
-    private Schedule schedule;
+    List<Schedule> schedules;
 
 }

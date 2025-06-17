@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Date;
+
 
 @Entity
 @Getter
@@ -38,10 +38,16 @@ public class Account implements UserDetails {
     private Role role;
 
     @OneToOne(mappedBy = "account")
-    private Member member;
-
-    @OneToOne(mappedBy = "account")
     private Consultant consultant;
+
+    @OneToMany(mappedBy = "account")
+    private List<Appointment> appointments;
+
+    @OneToMany(mappedBy = "account")
+    private List<EventParticipation> eventParticipations;
+
+    @OneToMany(mappedBy = "account")
+    private List<SurveyResult> surveyResults;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

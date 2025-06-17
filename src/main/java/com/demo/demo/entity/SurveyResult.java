@@ -6,29 +6,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.time.LocalTime;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member {
-
+public class SurveyResult {
     @Id
-    @GeneratedValue
     private long id;
-    private String name;
-    private String address;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "member")
-    private List<Appointment> appointments;
+    private int score;
+    private String riskLevel;
+    private String recommendation;
+    private LocalTime takenAt;
 
-    @OneToMany(mappedBy = "member")
-    private List<EventParticipation> eventParticipations;
 
 }

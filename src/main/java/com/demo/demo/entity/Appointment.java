@@ -19,17 +19,19 @@ import java.util.List;
 public class Appointment {
     @Id
     private int id;
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+    @ManyToOne
+    @JoinColumn(name = "slot_id")
+    private Slot slot;
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus appointmentStatus;
     private LocalDateTime creatAt;
+    private String note;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
 
-    @ManyToOne
-    @JoinColumn(name = "slot_id")
-    private Slot slot;
+
 
 }

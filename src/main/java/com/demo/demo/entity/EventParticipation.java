@@ -19,19 +19,21 @@ public class EventParticipation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(nullable = false, columnDefinition = "DATETIME")
-    private LocalDateTime checkInTime;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @Column(nullable = false, columnDefinition = "DATETIME")
+    private LocalDateTime checkInTime;
 
     @Column(nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime checkOutTime;
+
     @Enumerated(EnumType.STRING)
     private EventParticipationStatus status;
 

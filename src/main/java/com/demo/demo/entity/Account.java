@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -22,7 +23,13 @@ public class Account implements UserDetails {
     private String email;
     private String phone;
     private String password;
-    private String fullName;
+    private String name;
+    private String address;
+    private String avatar;
+
+
+    @Temporal(TemporalType.DATE) // Use TemporalType.DATE if you only need the date part (day, month, year)
+    private Date dateOfBirth;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;

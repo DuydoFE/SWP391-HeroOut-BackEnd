@@ -22,6 +22,7 @@ public class Appointment {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
     @ManyToOne
     @JoinColumn(name = "slot_id")
     private Slot slot;

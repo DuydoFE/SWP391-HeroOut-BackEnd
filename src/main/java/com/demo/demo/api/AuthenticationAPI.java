@@ -3,6 +3,7 @@ package com.demo.demo.api;
 import com.demo.demo.dto.AccountResponse;
 import com.demo.demo.dto.LoginRequest;
 import com.demo.demo.entity.Account;
+import com.demo.demo.entity.Member;
 import com.demo.demo.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus; // Import HttpStatus
@@ -32,7 +33,6 @@ public class AuthenticationAPI {
         }
         return ResponseEntity.ok(newAccount);
     }
-
     @PostMapping("/api/login")
     public ResponseEntity login(@RequestBody LoginRequest loginRequest){
         AccountResponse account = authenticationService.login(loginRequest);

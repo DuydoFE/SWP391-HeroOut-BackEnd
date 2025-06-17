@@ -31,10 +31,10 @@ public class Schedule {
     @ManyToOne
     @JoinColumn(name = "account_id")
     Account account;
+
+
     @ManyToOne
     @JoinColumn(name = "slot_id")
     Slot slot;
-
-
 
 }

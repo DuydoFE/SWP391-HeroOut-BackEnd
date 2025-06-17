@@ -43,10 +43,12 @@ public class Account implements UserDetails {
     private Set<Consultant> consultants = new HashSet<>();
 
     @OneToMany(mappedBy = "account")
-    private List<Schedule> schedules;
+    @JsonIgnore
+    List<Schedule> schedules;
 
     @OneToMany(mappedBy = "account")
-    private List<Appointment> appointments;
+    @JsonIgnore
+   List<Appointment> appointments;
 
     @OneToMany(mappedBy = "account")
     private List<EventParticipation> eventParticipations;

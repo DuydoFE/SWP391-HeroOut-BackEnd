@@ -1,6 +1,7 @@
 package com.demo.demo.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalTime;
 import java.util.List;
+
 
 @Entity
 @Getter
@@ -25,11 +27,8 @@ public class Slot {
    boolean isDeleted = false;
 
 
-    @ManyToOne
-    @JoinColumn(name = "schedule_id")
-    private Schedule schedule;
-
     @OneToMany(mappedBy = "slot")
-    private List<Appointment> appointments;
+    @JsonIgnore
+    List<Schedule> schedules;
 
 }

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,21 +19,13 @@ import java.util.List;
 @AllArgsConstructor
 public class Appointment {
     @Id
-    private int id;
+    private long id;
+    LocalDate createAt;
+    AppointmentStatus status;
+
     @ManyToOne
     @JoinColumn(name = "account_id")
-    private Account account;
-
-    @ManyToOne
-    @JoinColumn(name = "slot_id")
-    private Slot slot;
-
-    @Enumerated(EnumType.STRING)
-    private AppointmentStatus appointmentStatus;
-    private LocalDateTime creatAt;
-    private String note;
-
-
+    Account account;
 
 
 }

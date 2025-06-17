@@ -20,7 +20,7 @@ import java.time.LocalTime;
 public class Slot {
     @Id
     private long id;
-    private LocalTime startTime;
+    private LocalTime slot_start;
     private LocalTime endTime;
     private boolean isBooked;
 

@@ -21,7 +21,7 @@ public class Slot {
     @Id
     private long id;
     private LocalTime slot_start;
-    private LocalTime endTime;
+    private LocalTime slot_end;
     private boolean isBooked;
 
     @ManyToOne

@@ -24,8 +24,8 @@ public class Schedule {
     @JoinColumn(name = "consultant_id")
     private Consultant consultant;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private LocalDateTime start_date;
+    private LocalDateTime end_date;
     private String recurrence;
 
     @OneToMany(mappedBy = "schedule")

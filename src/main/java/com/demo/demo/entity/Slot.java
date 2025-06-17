@@ -17,10 +17,12 @@ import java.util.List;
 @AllArgsConstructor
 public class Slot {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private LocalTime slot_start;
-    private LocalTime slot_end;
-    private boolean isBooked;
+    String label;
+    LocalTime slot_start;
+    LocalTime slot_end;
+   boolean isDeleted = false;
 
 
     @ManyToOne

@@ -1,5 +1,6 @@
 package com.demo.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,8 +31,9 @@ public class Consultant {
     private int consultations;
     private String bio;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "account_id")
+    @JsonIgnore
     private Account account;
 
     @OneToMany(mappedBy = "consultant")

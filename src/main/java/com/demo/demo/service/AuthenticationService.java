@@ -1,9 +1,12 @@
 package com.demo.demo.service;
 
+import com.demo.demo.dto.AccountRequest;
 import com.demo.demo.dto.AccountResponse;
 import com.demo.demo.dto.EmailDetail;
 import com.demo.demo.dto.LoginRequest;
 import com.demo.demo.entity.Account;
+import com.demo.demo.entity.Consultant;
+import com.demo.demo.enums.Role;
 import com.demo.demo.exception.exceptions.AuthenticationException;
 import com.demo.demo.repository.AuthenticationRepository;
 import org.modelmapper.ModelMapper;
@@ -39,9 +42,24 @@ public class AuthenticationService implements UserDetailsService {
     @Autowired
     EmailService emailService;
 
-    public Account register(Account account) {
+    public Account register(AccountRequest accountRequest) {
+        // Convert DTO to Account entity
+        Account account = toEntity(accountRequest);
+
+        // If role is CONSULTANT, create and attach Consultant
+        if (account.getRole() == Role.CONSULTANT) {
+            Consultant consultant = new Consultant();
+            consultant.setAccount(account); // Important for @ManyToOne
+            account.getConsultants().add(consultant); // Add to Set<Consultant>
+        }
+
+        // Encode the password before saving
         account.setPassword(passwordEncoder.encode(account.getPassword()));
+
+        // Save to DB
         Account newAccount = authenticationRepository.save(account);
+
+        // Send welcome email
         EmailDetail emailDetail = new EmailDetail();
         emailDetail.setRecippient(account.getEmail());
         emailDetail.setSubject("Welcome to HeroOut");
@@ -50,6 +68,22 @@ public class AuthenticationService implements UserDetailsService {
         return newAccount;
     }
 
+
+    public static Account toEntity(AccountRequest request) {
+        Account account = new Account();
+        account.setEmail(request.getEmail());
+        account.setPhone(request.getPhone());
+        account.setPassword(request.getPassword());
+        account.setName(request.getName());
+        account.setAddress(request.getAddress());
+        account.setAvatar(request.getAvatar());
+        account.setDateOfBirth(request.getDateOfBirth());
+        account.setGender(request.getGender());
+        account.setRole(request.getRole());
+
+        // Relationships (e.g., schedules, appointments...) are not set here
+        return account;
+    }
     public AccountResponse login(LoginRequest loginRequest){
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -83,6 +117,9 @@ public class AuthenticationService implements UserDetailsService {
         // API Controller sẽ xử lý null để trả về 404 Not Found.
         return accountOptional.orElse(null);
     }
+
+
+
     // ----------------------------------------------
 }
 

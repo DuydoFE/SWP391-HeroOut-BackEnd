@@ -24,10 +24,17 @@ public class Schedule {
     @JoinColumn(name = "consultant_id")
     private Consultant consultant;
 
-    private LocalDateTime start_date;
-    private LocalDateTime end_date;
+    LocalDate date;
     private String recurrence;
+    boolean isBooked =true;
 
-    @OneToMany(mappedBy = "schedule")
-    private List<Slot> slots;
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    Account account;
+    @ManyToOne
+    @JoinColumn(name = "slot_id")
+    Slot slot;
+
+
+
 }

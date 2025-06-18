@@ -1,6 +1,7 @@
 package com.demo.demo.entity;
 
 import com.demo.demo.enums.EventParticipationStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,17 +22,19 @@ public class EventParticipation {
     private long id;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "account_id")
     private Account account;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @Column(nullable = false, columnDefinition = "DATETIME")
+    @Column(nullable = true, columnDefinition = "DATETIME")
     private LocalDateTime checkInTime;
 
-    @Column(nullable = false, columnDefinition = "DATETIME")
+    @Column(nullable = true, columnDefinition = "DATETIME")
     private LocalDateTime checkOutTime;
 
     @Enumerated(EnumType.STRING)

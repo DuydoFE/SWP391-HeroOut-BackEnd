@@ -10,7 +10,7 @@ import lombok.Data;
 public class AccountResponse {
     public String email;
     public String phone;
-    public String fullName;
+    public String name;
     public Gender gender;
     public Role role;
     public String token;

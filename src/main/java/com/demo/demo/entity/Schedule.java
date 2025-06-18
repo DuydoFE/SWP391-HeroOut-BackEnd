@@ -20,9 +20,7 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne
-    @JoinColumn(name = "consultant_id")
-    private Consultant consultant;
+
 
     LocalDate date;
     private String recurrence;

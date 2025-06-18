@@ -40,7 +40,7 @@ public class AppointmentService {
     public Appointment create(AppointmentRequest appointmentRequest) {
 
         //find doctor
-        Account consultant = authenticationRepository.findById(appointmentRequest.getConsultantId()).orElseThrow(()->new RuntimeException("consultantnotfound"));
+        Account consultant = authenticationRepository.findById(appointmentRequest.getAccountId()).orElseThrow(()->new RuntimeException("consultantnotfound"));
 
         //check doctor
         if (!consultant.getRole().equals(Role.CONSULTANT)){

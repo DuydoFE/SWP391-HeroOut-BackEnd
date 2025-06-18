@@ -26,11 +26,11 @@ public class Consultant {
     private LocalDate expiryDate;
     private String organization;
     private String specialities;
-    private String experence;
+    private String experience;
     private float rating;
     private int consultations;
     private String bio;
-
+    
     @ManyToOne
     @JoinColumn(name = "account_id")
     @JsonIgnore

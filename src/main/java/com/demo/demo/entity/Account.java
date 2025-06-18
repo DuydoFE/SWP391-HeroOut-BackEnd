@@ -20,11 +20,10 @@ public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
+    private String name;
     private String email;
     private String phone;
     private String password;
-    private String name;
     private String address;
     private String avatar;
 

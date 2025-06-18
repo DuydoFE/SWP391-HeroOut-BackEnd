@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class AccountResponse {
+    public long id;
     public String email;
     public String phone;
     public String name;

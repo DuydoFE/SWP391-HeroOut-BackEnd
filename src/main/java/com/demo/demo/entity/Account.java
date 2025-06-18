@@ -19,13 +19,13 @@ public class Account implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private String name;
-    private String email;
-    private String phone;
+    public long id;
+    public String name;
+    public  String email;
+    public String phone;
     private String password;
-    private String address;
-    private String avatar;
+    public String address;
+    public String avatar;
 
 
     @Temporal(TemporalType.DATE) // Use TemporalType.DATE if you only need the date part (day, month, year)

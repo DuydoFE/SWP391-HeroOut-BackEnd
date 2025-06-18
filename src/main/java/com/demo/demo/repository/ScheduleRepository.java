@@ -14,5 +14,6 @@ import java.util.List;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findScheduleByAccountAndDate(Account account, LocalDate date);
 
+    List<Schedule> findByAccountId(long accountId);
     Schedule findScheduleBySlotIdAndAccountAndDate(Long slotId, Account account, LocalDate date);
 }

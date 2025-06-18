@@ -47,6 +47,11 @@ public class AuthenticationService implements UserDetailsService {
         // Convert DTO to Account entity
         Account account = toEntity(accountRequest);
 
+        // Set role mặc định là MEMBER nếu chưa có
+        if (account.getRole() == null) {
+            account.setRole(Role.MEMBER);
+        }
+
         // If role is CONSULTANT, create and attach Consultant
         if (account.getRole() == Role.CONSULTANT) {
             Consultant consultant = new Consultant();

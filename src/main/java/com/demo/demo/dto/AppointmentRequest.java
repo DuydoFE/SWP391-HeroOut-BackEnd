@@ -10,7 +10,7 @@ import java.util.List;
 public class AppointmentRequest {
 
     long slotId;
-    long consultantId;
+    long accountId;
 
     LocalDate appointmentDate;
 

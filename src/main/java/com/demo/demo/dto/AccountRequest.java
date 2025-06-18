@@ -10,6 +10,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class AccountRequest {
+    private long id;
     private String email;
     private String phone;
     private String password;

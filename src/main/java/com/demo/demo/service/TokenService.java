@@ -1,6 +1,6 @@
 package com.demo.demo.service;
 
-import com.demo.demo.entity.Account;
+import com.demo.demo.entity.Account; // Đảm bảo Account class có method getId() và getRole()
 import com.demo.demo.repository.AuthenticationRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -19,56 +19,89 @@ public class TokenService {
     @Autowired
     AuthenticationRepository authenticationRepository;
 
+    // Nên lưu Secret Key ở nơi an toàn hơn, không hardcode trực tiếp trong mã nguồn
     private final String SECRET_KEY = "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c";
 
     private SecretKey getSigninKey(){
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(keyBytes); // Sử dụng thuật toán mặc định của Keys (thường là HS256)
     }
 
     public String generateToken(Account account) {
+        // Đảm bảo Account không null trước khi tạo token
+        if (account == null) {
+            throw new IllegalArgumentException("Account cannot be null for token generation");
+        }
+
+
+
         String token =
                 // create object of JWT
-                Jwts.builder().
-                        //subject of token
-                                subject(account.getEmail()).
+                Jwts.builder()
+                        //subject of token (thường là thông tin nhận dạng chính)
+                        .subject(account.getEmail()) // Giữ lại email làm subject
+                        .claim("id", account.getId())
+                        .claim("role", account.getRole())
+
                         // time Create Token
-                                issuedAt(new Date(System.currentTimeMillis()))
-                        // Time exprire of Token
+                        .issuedAt(new Date(System.currentTimeMillis()))
+
+                        // Time exprire of Token (24 giờ sau thời điểm tạo)
                         .expiration(new Date(System.currentTimeMillis()+24*60*60*1000))
-                        //
+
+                        // Ký token bằng khóa bí mật
                         .signWith(getSigninKey())
+
+                        // Kết thúc quá trình xây dựng và tạo chuỗi token
                         .compact();
+
         return token;
     }
 
-    // form token to Claim Object
+
     public Claims extractAllClaims(String token) {
-        return  Jwts.parser().
-                verifyWith(getSigninKey())
+        return  Jwts.parser()
+                .verifyWith(getSigninKey()) // Xác minh chữ ký
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseSignedClaims(token) // Phân tích token đã ký
+                .getPayload(); // Lấy ra các Claims (payload)
     }
 
-    // get userName form CLAIM
+
     public Account extractAccount (String token){
-        String email = extractClaim(token,Claims::getSubject);
+        String email = extractClaim(token,Claims::getSubject); // Lấy email từ subject
+        // Tìm Account trong database dựa vào email
         return authenticationRepository.findAccountByEmail(email);
     }
+
+
+    public Long extractAccountId(String token) {
+
+        return extractClaim(token, claims -> claims.get("id", Long.class));
+    }
+
+
+    public String extractAccountRole(String token) {
+
+        return extractClaim(token, claims -> claims.get("role", String.class)); // <-- THÊM DÒNG NÀY
+    }
+
 
 
     public boolean isTokenExpired(String token){
         return extractExpiration(token).before(new Date());
     }
-    // get Expiration form CLAIM
+
+
     public Date extractExpiration(String token){
         return extractClaim(token,Claims::getExpiration);
     }
 
-    // from claim and extract specific data type.
-    public <T> T extractClaim(String token, Function<Claims,T> resolver){
+    public <T> T extractClaim(String token, Function<Claims,T> claimsResolver){
         Claims claims = extractAllClaims(token);
-        return  resolver.apply(claims);
+        return  claimsResolver.apply(claims);
     }
+
+    // Bạn có thể thêm phương thức để validate token ở đây nếu cần
+    // public boolean isValidToken(String token, UserDetails userDetails) { ... }
 }

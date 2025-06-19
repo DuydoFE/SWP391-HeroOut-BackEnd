@@ -1,6 +1,7 @@
 package com.demo.demo.api;
 
 import com.demo.demo.dto.EventParticipationRequest;
+import com.demo.demo.dto.EventParticipationResponse;
 import com.demo.demo.entity.EventParticipation;
 import com.demo.demo.service.EventParticipationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -20,13 +21,14 @@ public class EventParticipationAPI {
     private EventParticipationService eventParticipationService;
 
     @GetMapping
-    public ResponseEntity<List<EventParticipation>> getAll() {
-        return ResponseEntity.ok(eventParticipationService.getAllParticipations());
+    public List<EventParticipationResponse> getAllParticipations() {
+        return eventParticipationService.getAllParticipationResponses();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventParticipation> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(eventParticipationService.getParticipationById(id));
+    public EventParticipationResponse getParticipationById(@PathVariable Long id) {
+        EventParticipation participation = eventParticipationService.getParticipationById(id);
+        return eventParticipationService.toResponse(participation);
     }
 
     @PostMapping

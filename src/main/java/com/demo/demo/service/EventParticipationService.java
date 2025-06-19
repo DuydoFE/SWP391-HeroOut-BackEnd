@@ -1,6 +1,7 @@
 package com.demo.demo.service;
 
 import com.demo.demo.dto.EventParticipationRequest;
+import com.demo.demo.dto.EventParticipationResponse;
 import com.demo.demo.entity.EventParticipation;
 import com.demo.demo.repository.AuthenticationRepository;
 import com.demo.demo.repository.EventParticipationRepository;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EventParticipationService {
@@ -27,8 +29,22 @@ public class EventParticipationService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<EventParticipation> getAllParticipations() {
-        return eventParticipationRepository.findAll();
+    public EventParticipationResponse toResponse(EventParticipation participation) {
+        return new EventParticipationResponse(
+                participation.getId(),
+                participation.getAccount() != null ? participation.getAccount().getId() : null,
+                participation.getEvent() != null ? participation.getEvent().getId() : null,
+                participation.getCheckInTime(),
+                participation.getCheckOutTime(),
+                participation.getStatus()
+        );
+    }
+
+    public List<EventParticipationResponse> getAllParticipationResponses() {
+        return eventParticipationRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     public EventParticipation getParticipationById(Long id) {

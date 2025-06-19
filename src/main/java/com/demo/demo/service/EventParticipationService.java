@@ -37,6 +37,15 @@ public class EventParticipationService {
     }
 
     public EventParticipation createParticipation(EventParticipationRequest request) {
+
+        boolean alreadyExists = eventParticipationRepository
+                .findByAccountIdAndEventId(request.getAccountId(), request.getEventId())
+                .isPresent();
+
+        if (alreadyExists) {
+            throw new IllegalStateException("You have already registered for this event!");
+        }
+
         EventParticipation participation = new EventParticipation();
 
         participation.setAccount(accountRepository.findById(request.getAccountId())

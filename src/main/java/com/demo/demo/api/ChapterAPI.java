@@ -1,7 +1,7 @@
 package com.demo.demo.api;
 
-import com.demo.demo.entity.Course;
-import com.demo.demo.service.CourseService;
+import com.demo.demo.entity.Chapter;
+import com.demo.demo.service.ChapterService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,30 +10,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping("/api/chapters")
 @SecurityRequirement(name = "api")
 @RequiredArgsConstructor
-public class CourseAPI {
-    private final CourseService service;
+public class ChapterAPI {
+    private final ChapterService service;
 
     @GetMapping
-    public List<Course> getAll() {
+    public List<Chapter> getAll() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Course> get(@PathVariable Long id) {
+    public ResponseEntity<Chapter> get(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public Course create(@RequestBody Course course) {
-        return service.create(course);
+    public Chapter create(@RequestBody Chapter chapter) {
+        return service.create(chapter);
     }
 
     @PutMapping("/{id}")
-    public Course update(@PathVariable Long id, @RequestBody Course course) {
-        return service.update(id, course);
+    public Chapter update(@PathVariable Long id, @RequestBody Chapter chapter) {
+        return service.update(id, chapter);
     }
 
     @DeleteMapping("/{id}")

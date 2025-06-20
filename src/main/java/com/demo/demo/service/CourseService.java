@@ -1,5 +1,6 @@
 package com.demo.demo.service;
 
+import com.demo.demo.entity.Chapter;
 import com.demo.demo.entity.Course;
 import com.demo.demo.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,14 @@ public class CourseService {
     }
 
     public Course create(Course course) {
+        if (course.getChapters() != null) {
+            for (Chapter chapter : course.getChapters()) {
+                chapter.setCourse(course); // BẮT BUỘC!
+            }
+        }
         return courseRepository.save(course);
     }
+
 
     public Course update(Long id, Course course) {
         course.setId(id);

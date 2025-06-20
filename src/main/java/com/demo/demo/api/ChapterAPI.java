@@ -1,5 +1,6 @@
 package com.demo.demo.api;
 
+import com.demo.demo.dto.ChapterDTO;
 import com.demo.demo.entity.Chapter;
 import com.demo.demo.service.ChapterService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -32,8 +33,9 @@ public class ChapterAPI {
     }
 
     @PutMapping("/{id}")
-    public Chapter update(@PathVariable Long id, @RequestBody Chapter chapter) {
-        return service.update(id, chapter);
+    public ResponseEntity<Chapter> update(@PathVariable Long id, @RequestBody ChapterDTO dto) {
+        Chapter updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")

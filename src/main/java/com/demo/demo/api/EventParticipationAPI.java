@@ -49,4 +49,15 @@ public class EventParticipationAPI {
         eventParticipationService.deleteParticipation(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/participations/{id}/checkin")
+    public EventParticipation checkIn(@PathVariable Long id) {
+        return eventParticipationService.checkInParticipation(id);
+    }
+
+    @PutMapping("/participations/{id}/checkout")
+    public EventParticipation checkOut(@PathVariable Long id) {
+        return eventParticipationService.checkOutParticipation(id);
+    }
+
 }

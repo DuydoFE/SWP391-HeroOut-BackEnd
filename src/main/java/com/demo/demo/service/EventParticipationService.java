@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,4 +101,23 @@ public class EventParticipationService {
         }
         eventParticipationRepository.deleteById(id);
     }
+
+    public EventParticipation checkInParticipation(Long id) {
+        EventParticipation existing = eventParticipationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Participation not found"));
+
+        existing.setCheckInTime(LocalDateTime.now());
+
+        return eventParticipationRepository.save(existing);
+    }
+
+    public EventParticipation checkOutParticipation(Long id) {
+        EventParticipation existing = eventParticipationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Participation not found"));
+
+        existing.setCheckOutTime(LocalDateTime.now());
+
+        return eventParticipationRepository.save(existing);
+    }
+
 }

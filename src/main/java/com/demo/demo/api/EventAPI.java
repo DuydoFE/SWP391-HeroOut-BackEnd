@@ -20,9 +20,8 @@ public class EventAPI {
 
     // CREATE
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody EventRequest eventRequest) {
-        Event created = eventService.createNewEvent(eventRequest);
-        return ResponseEntity.ok(created);
+    public Event createEvent(@RequestBody EventRequest request) {
+        return eventService.createEvent(request);
     }
 
     // READ ALL

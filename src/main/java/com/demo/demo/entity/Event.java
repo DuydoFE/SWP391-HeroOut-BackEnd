@@ -19,15 +19,15 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Column(nullable = false, columnDefinition = "Nvarchar(200)")
+    @Column(nullable = true, columnDefinition = "Nvarchar(200)")
     private String title;
-    @Column(nullable = false, columnDefinition = "Nvarchar(200)")
+    @Column(nullable = true, columnDefinition = "Nvarchar(200)")
     private String description;
-    @Column(nullable = false, columnDefinition = "Nvarchar(200)")
+    @Column(nullable = true, columnDefinition = "Nvarchar(200)")
     private String location;
-    @Column(nullable = false,columnDefinition = "DATETIME")
+    @Column(nullable = true,columnDefinition = "DATETIME")
     private LocalDateTime startTime;
-    @Column(nullable = false, columnDefinition = "DATETIME")
+    @Column(nullable = true, columnDefinition = "DATETIME")
     private LocalDateTime endTime;
 
 }

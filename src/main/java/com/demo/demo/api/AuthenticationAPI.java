@@ -50,7 +50,8 @@ public class AuthenticationAPI {
         // Gọi service để lấy account
         Account account = authenticationService.getAccountById(id);
 
-        // Kiểm tra nếu không tìm thấy account
+        // Kiểm tra nếu kh
+        // ông tìm thấy account
         if (account == null) {
             // Trả về 404 Not Found
             return ResponseEntity.notFound().build();

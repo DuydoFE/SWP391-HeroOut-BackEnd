@@ -64,6 +64,7 @@ public class EventService {
         existingEvent.setStartTime(updatedEvent.getStartTime());
         existingEvent.setEndTime(updatedEvent.getEndTime());
         existingEvent.setDescription(updatedEvent.getDescription());
+        validateEventTime(existingEvent.getStartTime(), existingEvent.getEndTime());
 
         return eventRepository.save(existingEvent);
     }

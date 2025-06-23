@@ -61,10 +61,7 @@ public class AuthenticationService implements UserDetailsService {
         Account newAccount = authenticationRepository.save(account);
 
         // Send welcome email
-        EmailDetail emailDetail = new EmailDetail();
-        emailDetail.setRecippient(account.getEmail());
-        emailDetail.setSubject("Welcome to HeroOut");
-        emailService.sendMail(emailDetail);
+        emailService.sendRegistrationConfirmation(newAccount.getEmail(), newAccount.getName());
 
         return newAccount;
     }

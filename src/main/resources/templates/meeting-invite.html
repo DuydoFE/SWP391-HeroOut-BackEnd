@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Meeting Invitation</title>
+</head>
+<body>
+<p>Hi <strong th:text="${name}"></strong>,</p>
+<p>Your Jitsi meeting has been created.</p>
+<p>Click the link below to join:</p>
+<a th:href="${meetingLink}" th:text="${meetingLink}"></a>
+<p>Regards,<br/>Admin</p>
+</body>
+</html>

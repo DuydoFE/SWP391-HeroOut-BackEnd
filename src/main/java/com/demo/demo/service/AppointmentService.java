@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class AppointmentService {
     @Autowired
@@ -34,6 +36,11 @@ public class AppointmentService {
     @Autowired
     AuthenticationService authenticationService;
 
+    @Autowired
+    private JitsiService jitsiService;
+
+    @Autowired
+    private EmailService emailService;
 
 
     @Transactional
@@ -78,5 +85,18 @@ public class AppointmentService {
 
 
         return appointment;
+    }
+    public String checkInAppointment(Long appointmentId) {
+        Optional<Appointment> optional = appointmentRepository.findById(appointmentId);
+        if (optional.isPresent()) {
+            Appointment appointment = optional.get();
+            Account account = appointment.getAccount();
+
+            String meetingLink = jitsiService.createMeetingRoom(account.getName());
+            emailService.sendMeetingLink(account.getEmail(), account.getName(), meetingLink);
+            return meetingLink;
+        } else {
+            throw new RuntimeException("Appointment not found");
+        }
     }
 }

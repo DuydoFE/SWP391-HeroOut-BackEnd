@@ -7,11 +7,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/accounts")
 @SecurityRequirement(name = "api")
-
-public class AccountAPI {  // Đã đổi tên từ AccountController thành AccountAPI
+public class AccountAPI {
 
     @Autowired
     private AccountService accountService;
@@ -19,5 +20,10 @@ public class AccountAPI {  // Đã đổi tên từ AccountController thành Acc
     @PutMapping("/update")
     public Account updateAccount(@RequestParam long id, @RequestBody UpdateAccountRequest request) {
         return accountService.updateAccount(id, request);
+    }
+
+    @GetMapping
+    public List<Account> getAllAccounts() {
+        return accountService.getAllAccounts();
     }
 }

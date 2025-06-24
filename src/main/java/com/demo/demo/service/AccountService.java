@@ -2,6 +2,7 @@ package com.demo.demo.service;
 
 import com.demo.demo.dto.UpdateAccountRequest;
 import com.demo.demo.entity.Account;
+import com.demo.demo.enums.AccountStatus;
 import com.demo.demo.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,5 +33,12 @@ public class AccountService {
     }
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
+    }
+
+    public void updateAccountStatus(Long id, AccountStatus status) {
+        Account acc = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        acc.setStatus(status);
+        accountRepository.save(acc);
     }
 }

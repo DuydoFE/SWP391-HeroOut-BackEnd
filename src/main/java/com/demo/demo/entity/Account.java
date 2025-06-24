@@ -1,5 +1,6 @@
 package com.demo.demo.entity;
 
+import com.demo.demo.enums.AccountStatus;
 import com.demo.demo.enums.Gender;
 import com.demo.demo.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,6 +28,10 @@ public class Account implements UserDetails {
     public String address;
     public String avatar;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountStatus status = AccountStatus.ACTIVE;
 
     @Temporal(TemporalType.DATE) // Use TemporalType.DATE if you only need the date part (day, month, year)
     private Date dateOfBirth;

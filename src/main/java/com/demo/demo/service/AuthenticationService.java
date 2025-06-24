@@ -7,6 +7,7 @@ import com.demo.demo.dto.LoginRequest;
 import com.demo.demo.entity.Account;
 import com.demo.demo.entity.Consultant;
 import com.demo.demo.enums.Role;
+import com.demo.demo.enums.AccountStatus; // Có thể cần import này nếu entity Account có status
 import com.demo.demo.exception.exceptions.AuthenticationException;
 import com.demo.demo.repository.AuthenticationRepository;
 import org.modelmapper.ModelMapper;
@@ -47,20 +48,20 @@ public class AuthenticationService implements UserDetailsService {
         // Convert DTO to Account entity
         Account account = toEntity(accountRequest);
 
-        // If role is CONSULTANT, create and attach Consultant
+
         if (account.getRole() == Role.CONSULTANT) {
             Consultant consultant = new Consultant();
-            consultant.setAccount(account); // Important for @ManyToOne
-            account.getConsultants().add(consultant); // Add to Set<Consultant>
+            consultant.setAccount(account);
+            account.getConsultants().add(consultant);
         }
 
-        // Encode the password before saving
+
         account.setPassword(passwordEncoder.encode(account.getPassword()));
 
-        // Save to DB
+
         Account newAccount = authenticationRepository.save(account);
 
-        // Send welcome email
+
         emailService.sendRegistrationConfirmation(newAccount.getEmail(), newAccount.getName());
 
         return newAccount;
@@ -70,6 +71,7 @@ public class AuthenticationService implements UserDetailsService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return authenticationRepository.findAccountByEmail(email);
     }
+
 
 
     public static Account toEntity(AccountRequest request) {
@@ -84,7 +86,6 @@ public class AuthenticationService implements UserDetailsService {
         account.setGender(request.getGender());
         account.setRole(request.getRole());
 
-        // Relationships (e.g., schedules, appointments...) are not set here
         return account;
     }
     public AccountResponse login(LoginRequest loginRequest){
@@ -94,14 +95,19 @@ public class AuthenticationService implements UserDetailsService {
                     loginRequest.getPassword()
             ));
         }catch (Exception e){
-            // sai thông tin đăng nhập
+
             System.out.println("Thông tin đăng nhập ko chính xác");
 
             throw new AuthenticationException("Invalid username or password");
         }
 
         Account account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
+
+
         AccountResponse accountResponse = modelMapper.map(account, AccountResponse.class);
+
+
+
         String token = tokenService.generateToken(account);
         accountResponse.setToken(token);
         return accountResponse;
@@ -111,13 +117,12 @@ public class AuthenticationService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return authenticationRepository.findAccountByEmail(email);
     }
-    // --- Phương thức mới để lấy Account theo ID ---
+
     public Account getAccountById(long id) {
-        // JpaRepository cung cấp phương thức findById trả về Optional
+
         Optional<Account> accountOptional = authenticationRepository.findById(id);
 
-        // Trả về Account nếu tìm thấy, ngược lại trả về null.
-        // API Controller sẽ xử lý null để trả về 404 Not Found.
+
         return accountOptional.orElse(null);
     }
 
@@ -125,4 +130,3 @@ public class AuthenticationService implements UserDetailsService {
 
     // ----------------------------------------------
 }
-

@@ -133,8 +133,8 @@ public class EventParticipationService {
         return eventParticipationRepository.findAllByAccountId(accountId);
     }
 
-    public List<EventParticipationResponse> getAllByStatus(EventParticipationStatus status) {
-        return eventParticipationRepository.findAllByStatus(status)
+    public List<EventParticipationResponse> getAllByEventIdAndStatus(Long eventId, EventParticipationStatus status) {
+        return eventParticipationRepository.findAllByEventIdAndStatus(eventId, status)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());

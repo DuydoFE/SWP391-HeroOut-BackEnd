@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface EventParticipationRepository extends JpaRepository<EventParticipation, Long> {
     Optional<EventParticipation> findByAccountIdAndEventId(Long accountId, Long eventId);
     List<EventParticipation> findAllByAccountId(Long accountId);
-    List<EventParticipation> findAllByStatus(EventParticipationStatus status);
+    List<EventParticipation> findAllByEventIdAndStatus(Long eventId, EventParticipationStatus status);
+
 }

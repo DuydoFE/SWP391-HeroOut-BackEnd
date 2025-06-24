@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 public class EventParticipationResponse {
     private Long id;
     private Long accountId;
+    private String accountName;
+    private String accountGmail;
     private Long eventId;
     private LocalDateTime checkInTime;
     private LocalDateTime checkOutTime;

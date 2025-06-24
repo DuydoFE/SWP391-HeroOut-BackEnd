@@ -3,6 +3,7 @@ package com.demo.demo.service;
 import com.demo.demo.dto.EventParticipationRequest;
 import com.demo.demo.dto.EventParticipationResponse;
 import com.demo.demo.entity.EventParticipation;
+import com.demo.demo.enums.EventParticipationStatus;
 import com.demo.demo.repository.AuthenticationRepository;
 import com.demo.demo.repository.EventParticipationRepository;
 import com.demo.demo.repository.EventRepository;
@@ -70,9 +71,7 @@ public class EventParticipationService {
         participation.setEvent(eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new EntityNotFoundException("Event not found")));
 
-        participation.setCheckInTime(request.getCheckInTime());
-        participation.setCheckOutTime(request.getCheckOutTime());
-        participation.setStatus(request.getStatus());
+        participation.setStatus(EventParticipationStatus.REGISTERED);
 
         return eventParticipationRepository.save(participation);
     }
@@ -107,7 +106,7 @@ public class EventParticipationService {
                 .orElseThrow(() -> new EntityNotFoundException("Participation not found"));
 
         existing.setCheckInTime(LocalDateTime.now());
-
+        existing.setStatus(EventParticipationStatus.CHECKED_IN);
         return eventParticipationRepository.save(existing);
     }
 
@@ -116,8 +115,16 @@ public class EventParticipationService {
                 .orElseThrow(() -> new EntityNotFoundException("Participation not found"));
 
         existing.setCheckOutTime(LocalDateTime.now());
-
+        existing.setStatus(EventParticipationStatus.CHECKED_OUT);
         return eventParticipationRepository.save(existing);
+    }
+
+    public List<EventParticipation> getAllEventParticipationByAccountId(Long accountId) {
+        if (!accountRepository.existsById(accountId)) {
+            throw new EntityNotFoundException("Account not found");
+        }
+
+        return eventParticipationRepository.findAllByAccountId(accountId);
     }
 
 }

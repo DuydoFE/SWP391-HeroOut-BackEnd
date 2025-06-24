@@ -60,4 +60,10 @@ public class EventParticipationAPI {
         return eventParticipationService.checkOutParticipation(id);
     }
 
+    @GetMapping("/account/{accountId}")
+    public ResponseEntity<List<EventParticipation>> getByAccount(@PathVariable Long accountId) {
+        List<EventParticipation> participations = eventParticipationService.getAllEventParticipationByAccountId(accountId);
+        return ResponseEntity.ok(participations);
+    }
+
 }

@@ -32,9 +32,15 @@ public class EventParticipationService {
     private ModelMapper modelMapper;
 
     public EventParticipationResponse toResponse(EventParticipation participation) {
+        Long accountId = participation.getAccount() != null ? participation.getAccount().getId() : null;
+        String accountName = participation.getAccount() != null ? participation.getAccount().getName() : null;
+        String accountGmail = participation.getAccount() != null ? participation.getAccount().getEmail() : null;
+
         return new EventParticipationResponse(
                 participation.getId(),
-                participation.getAccount() != null ? participation.getAccount().getId() : null,
+                accountId,
+                accountName,
+                accountGmail,
                 participation.getEvent() != null ? participation.getEvent().getId() : null,
                 participation.getCheckInTime(),
                 participation.getCheckOutTime(),
@@ -127,7 +133,11 @@ public class EventParticipationService {
         return eventParticipationRepository.findAllByAccountId(accountId);
     }
 
-    public List<EventParticipation> getAllByStatus(EventParticipationStatus status) {
-        return eventParticipationRepository.findAllByStatus(status);
+    public List<EventParticipationResponse> getAllByStatus(EventParticipationStatus status) {
+        return eventParticipationRepository.findAllByStatus(status)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
+
 }

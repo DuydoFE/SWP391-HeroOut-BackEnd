@@ -68,23 +68,26 @@ public class EventParticipationAPI {
     }
 
     @GetMapping("/registered")
-    public ResponseEntity<List<EventParticipationResponse>> getRegisteredParticipations() {
+    public ResponseEntity<List<EventParticipationResponse>> getRegisteredParticipations(
+            @RequestParam("eventId") Long eventId) {
         List<EventParticipationResponse> list =
-                eventParticipationService.getAllByStatus(EventParticipationStatus.REGISTERED);
+                eventParticipationService.getAllByEventIdAndStatus(eventId, EventParticipationStatus.REGISTERED);
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/checked-in")
-    public ResponseEntity<List<EventParticipationResponse>> getCheckedInParticipations() {
+    public ResponseEntity<List<EventParticipationResponse>> getCheckedInParticipations(
+            @RequestParam("eventId") Long eventId) {
         List<EventParticipationResponse> list =
-                eventParticipationService.getAllByStatus(EventParticipationStatus.CHECKED_IN);
+                eventParticipationService.getAllByEventIdAndStatus(eventId, EventParticipationStatus.CHECKED_IN);
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/checked-out")
-    public ResponseEntity<List<EventParticipationResponse>> getCheckedOutParticipations() {
+    public ResponseEntity<List<EventParticipationResponse>> getCheckedOutParticipations(
+            @RequestParam("eventId") Long eventId) {
         List<EventParticipationResponse> list =
-                eventParticipationService.getAllByStatus(EventParticipationStatus.CHECKED_OUT);
+                eventParticipationService.getAllByEventIdAndStatus(eventId, EventParticipationStatus.CHECKED_OUT);
         return ResponseEntity.ok(list);
     }
 

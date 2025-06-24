@@ -2,8 +2,9 @@ package com.demo.demo.dto;
 
 import com.demo.demo.enums.Gender;
 import com.demo.demo.enums.Role;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import com.demo.demo.enums.AccountStatus; // Thêm import này
+// import jakarta.persistence.EnumType; // Not typically needed in DTO
+// import jakarta.persistence.Enumerated; // Not typically needed in DTO
 import lombok.Data;
 
 @Data
@@ -14,5 +15,7 @@ public class AccountResponse {
     public String name;
     public Gender gender;
     public Role role;
+    public AccountStatus status; // Thêm trường status này
     public String token;
+
 }

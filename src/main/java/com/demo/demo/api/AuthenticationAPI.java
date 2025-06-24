@@ -37,10 +37,6 @@ public class AuthenticationAPI {
     @PostMapping("/api/login")
     public ResponseEntity login(@RequestBody LoginRequest loginRequest){
         AccountResponse account = authenticationService.login(loginRequest);
-        // Kiểm tra nếu login thất bại và trả về 401 Unauthorized
-        if (account == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials"); // Ví dụ xử lý lỗi
-        }
         return ResponseEntity.ok(account);
     }
 

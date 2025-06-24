@@ -67,7 +67,7 @@ public class EventParticipationAPI {
         return ResponseEntity.ok(participations);
     }
 
-    @GetMapping("/registered")
+    @GetMapping("/{eventId}/registered")
     public ResponseEntity<List<EventParticipationResponse>> getRegisteredParticipations(
             @RequestParam("eventId") Long eventId) {
         List<EventParticipationResponse> list =
@@ -75,7 +75,7 @@ public class EventParticipationAPI {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/checked-in")
+    @GetMapping("/{eventId}/checked-in")
     public ResponseEntity<List<EventParticipationResponse>> getCheckedInParticipations(
             @RequestParam("eventId") Long eventId) {
         List<EventParticipationResponse> list =
@@ -83,7 +83,7 @@ public class EventParticipationAPI {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/checked-out")
+    @GetMapping("/{eventId}/checked-out")
     public ResponseEntity<List<EventParticipationResponse>> getCheckedOutParticipations(
             @RequestParam("eventId") Long eventId) {
         List<EventParticipationResponse> list =

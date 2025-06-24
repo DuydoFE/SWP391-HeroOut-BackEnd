@@ -3,6 +3,7 @@ package com.demo.demo.api;
 import com.demo.demo.dto.EventParticipationRequest;
 import com.demo.demo.dto.EventParticipationResponse;
 import com.demo.demo.entity.EventParticipation;
+import com.demo.demo.enums.EventParticipationStatus;
 import com.demo.demo.service.EventParticipationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,24 @@ public class EventParticipationAPI {
     public ResponseEntity<List<EventParticipation>> getByAccount(@PathVariable Long accountId) {
         List<EventParticipation> participations = eventParticipationService.getAllEventParticipationByAccountId(accountId);
         return ResponseEntity.ok(participations);
+    }
+
+    @GetMapping("/registered")
+    public ResponseEntity<List<EventParticipation>> getRegisteredParticipations() {
+        List<EventParticipation> list = eventParticipationService.getAllByStatus(EventParticipationStatus.REGISTERED);
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/checked-in")
+    public ResponseEntity<List<EventParticipation>> getCheckedInParticipations() {
+        List<EventParticipation> list = eventParticipationService.getAllByStatus(EventParticipationStatus.CHECKED_IN);
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/checked-out")
+    public ResponseEntity<List<EventParticipation>> getCheckedOutParticipations() {
+        List<EventParticipation> list = eventParticipationService.getAllByStatus(EventParticipationStatus.CHECKED_OUT);
+        return ResponseEntity.ok(list);
     }
 
 }

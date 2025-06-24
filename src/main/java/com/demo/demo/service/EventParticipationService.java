@@ -127,4 +127,7 @@ public class EventParticipationService {
         return eventParticipationRepository.findAllByAccountId(accountId);
     }
 
+    public List<EventParticipation> getAllByStatus(EventParticipationStatus status) {
+        return eventParticipationRepository.findAllByStatus(status);
+    }
 }

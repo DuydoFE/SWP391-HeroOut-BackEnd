@@ -37,11 +37,6 @@ public class AuthenticationAPI {
     @PostMapping("/api/login")
     public ResponseEntity login(@RequestBody LoginRequest loginRequest){
         AccountResponse account = authenticationService.login(loginRequest);
-     
-        if (account == null) {
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
         return ResponseEntity.ok(account);
     }
 

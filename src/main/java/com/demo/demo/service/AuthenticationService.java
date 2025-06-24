@@ -7,8 +7,8 @@ import com.demo.demo.dto.LoginRequest;
 import com.demo.demo.entity.Account;
 import com.demo.demo.entity.Consultant;
 import com.demo.demo.enums.Role;
-import com.demo.demo.enums.AccountStatus; // Có thể cần import này nếu entity Account có status
-import com.demo.demo.exception.exceptions.AuthenticationException;
+import com.demo.demo.enums.AccountStatus; // Import AccountStatus
+import com.demo.demo.exception.exceptions.AuthenticationException; // Sử dụng lại exception này
 import com.demo.demo.repository.AuthenticationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,20 +48,25 @@ public class AuthenticationService implements UserDetailsService {
         // Convert DTO to Account entity
         Account account = toEntity(accountRequest);
 
+        // Set default status for new account (usually ACTIVE)
+        // This assumes Account entity has a setStatus method
+        // account.setStatus(AccountStatus.ACTIVE); // Cần đảm bảo Entity Account có phương thức này
 
+
+        // If role is CONSULTANT, create and attach Consultant
         if (account.getRole() == Role.CONSULTANT) {
             Consultant consultant = new Consultant();
-            consultant.setAccount(account);
-            account.getConsultants().add(consultant);
+            consultant.setAccount(account); // Important for @ManyToOne
+            account.getConsultants().add(consultant); // Add to Set<Consultant>
         }
 
-
+        // Encode the password before saving
         account.setPassword(passwordEncoder.encode(account.getPassword()));
 
-
+        // Save to DB
         Account newAccount = authenticationRepository.save(account);
 
-
+        // Send welcome email
         emailService.sendRegistrationConfirmation(newAccount.getEmail(), newAccount.getName());
 
         return newAccount;
@@ -73,7 +78,7 @@ public class AuthenticationService implements UserDetailsService {
     }
 
 
-
+    // Giả định Account entity có trường `status` kiểu AccountStatus và các trường khác
     public static Account toEntity(AccountRequest request) {
         Account account = new Account();
         account.setEmail(request.getEmail());
@@ -88,35 +93,67 @@ public class AuthenticationService implements UserDetailsService {
 
         return account;
     }
+
     public AccountResponse login(LoginRequest loginRequest){
+        Account account = null; // Khai báo account ở đây để có thể truy cập sau block try
+
         try {
+
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(),
                     loginRequest.getPassword()
             ));
-        }catch (Exception e){
 
-            System.out.println("Thông tin đăng nhập ko chính xác");
 
-            throw new AuthenticationException("Invalid username or password");
+            account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
+
+
+            if (account != null && account.getStatus() == AccountStatus.INACTIVE) {
+
+                System.out.println("Login blocked: Account INACTIVE for email: " + loginRequest.getEmail());
+                throw new AuthenticationException("tài khoản tạm thời bị vô hiệu hóa"); // Thông báo lỗi yêu cầu
+            }
+
+
+            if (account == null) {
+                System.err.println("Internal error: Authenticated user email not found in repository: " + loginRequest.getEmail());
+                throw new AuthenticationException("Login failed due to internal error.");
+            }
+
+
+        }catch (AuthenticationException e){
+
+            System.out.println("Authentication failed: " + e.getMessage());
+
+            throw e;
+        } catch (Exception e){
+
+            System.err.println("An unexpected error occurred during login: " + e.getMessage());
+
+            throw new AuthenticationException("An unexpected error occurred during login.");
         }
-
-        Account account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
 
 
         AccountResponse accountResponse = modelMapper.map(account, AccountResponse.class);
 
-
-
         String token = tokenService.generateToken(account);
         accountResponse.setToken(token);
+
+
         return accountResponse;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return authenticationRepository.findAccountByEmail(email);
+
+        Account account = authenticationRepository.findAccountByEmail(email);
+        if (account == null) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
+
+        return account;
     }
+
 
     public Account getAccountById(long id) {
 
@@ -125,8 +162,6 @@ public class AuthenticationService implements UserDetailsService {
 
         return accountOptional.orElse(null);
     }
-
-
 
     // ----------------------------------------------
 }

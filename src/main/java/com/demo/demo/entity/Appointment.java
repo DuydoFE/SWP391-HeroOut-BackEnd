@@ -23,6 +23,7 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     LocalDate createAt;
+    private String description;
 
     @Enumerated(EnumType.STRING)
     AppointmentStatus status;
@@ -35,6 +36,8 @@ public class Appointment {
     @JoinColumn(name = "schedule_id")
     @JsonIgnore
     Schedule schedule;
+
+
 
 
 }

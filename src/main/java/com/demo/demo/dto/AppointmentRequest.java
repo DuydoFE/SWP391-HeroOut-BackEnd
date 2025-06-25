@@ -11,6 +11,7 @@ public class AppointmentRequest {
 
     long slotId;
     long consultantId;
+    private String description;
 
     LocalDate appointmentDate;
 

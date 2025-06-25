@@ -1,10 +1,10 @@
 package com.demo.demo.entity;
 
-import com.demo.demo.enums.EnrollmentStatus;
+import com.demo.demo.enums.ProgressStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "Enrollment")
@@ -18,19 +18,15 @@ public class Enrollment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_id")
     private Account account;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
+    @JoinColumn(name = "course_id")
     private Course course;
 
-    @Column(name = "enrolled_at")
-    private LocalDateTime enrolledAt;
-
     @Enumerated(EnumType.STRING)
-    private EnrollmentStatus status;
+    private ProgressStatus status;
 
-    @OneToMany(mappedBy = "enrollment", cascade = CascadeType.ALL)
-    private List<EnrollmentChapter> enrollmentChapters;
+    private LocalDateTime createdAt;
 }

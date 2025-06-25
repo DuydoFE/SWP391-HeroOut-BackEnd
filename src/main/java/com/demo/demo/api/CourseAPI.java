@@ -1,10 +1,10 @@
 package com.demo.demo.api;
 
-import com.demo.demo.entity.Course;
+import com.demo.demo.dto.CourseRequest;
+import com.demo.demo.dto.CourseResponse;
 import com.demo.demo.service.CourseService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,32 +12,33 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/courses")
 @SecurityRequirement(name = "api")
-@RequiredArgsConstructor
 public class CourseAPI {
-    private final CourseService service;
 
-    @GetMapping
-    public List<Course> getAll() {
-        return service.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Course> get(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
-    }
+    @Autowired
+    private CourseService courseService;
 
     @PostMapping
-    public Course create(@RequestBody Course course) {
-        return service.create(course);
+    public CourseResponse createCourse(@RequestBody CourseRequest request) {
+        return courseService.createCourse(request);
     }
 
     @PutMapping("/{id}")
-    public Course update(@PathVariable Long id, @RequestBody Course course) {
-        return service.update(id, course);
+    public CourseResponse updateCourse(@PathVariable Long id, @RequestBody CourseRequest request) {
+        return courseService.updateCourse(id, request);
+    }
+
+    @GetMapping("/{id}")
+    public CourseResponse getCourseById(@PathVariable Long id) {
+        return courseService.getCourseById(id);
+    }
+
+    @GetMapping
+    public List<CourseResponse> getAllCourses() {
+        return courseService.getAllCourses();
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public void deleteCourse(@PathVariable Long id) {
+        courseService.deleteCourse(id);
     }
 }

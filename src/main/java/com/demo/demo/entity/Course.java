@@ -18,6 +18,9 @@ public class Course {
 
     private String title;
     private String description;
+    private String instructor;
+    private String objectives;
+    private String overview;
     private String ageGroup;
 
     @Column(name = "created_at")

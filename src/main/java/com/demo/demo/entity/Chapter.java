@@ -22,5 +22,4 @@ public class Chapter {
 
     private String title;
     private String content;
-    private int sequence;
 }

@@ -3,6 +3,7 @@ package com.demo.demo.api;
 import com.demo.demo.dto.RegisterSlotDTO;
 import com.demo.demo.dto.ScheduleResponse;
 import com.demo.demo.entity.Slot;
+import com.demo.demo.exception.exceptions.BadRequestException;
 import com.demo.demo.service.SlotService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +36,10 @@ public class SlotAPI {
     public ResponseEntity<List<ScheduleResponse>> registerSlot(@RequestBody RegisterSlotDTO registerSlotDTO) {
         List<ScheduleResponse> responses = slotService.registerSlot(registerSlotDTO);
         return ResponseEntity.ok(responses);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleBadRequest(BadRequestException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

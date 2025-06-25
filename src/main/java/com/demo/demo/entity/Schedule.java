@@ -24,13 +24,13 @@ public class Schedule {
 
     private LocalDate date;
     private String recurrence;
-    boolean isBooked =true;
+    boolean isBooked = false;
 
     @ManyToOne
     @JoinColumn(name = "consultant_id")
     private Consultant consultant;
 
-    @OneToOne(mappedBy = "schedule")
+    @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL)
     private Appointment appointment;
 
     @ManyToOne

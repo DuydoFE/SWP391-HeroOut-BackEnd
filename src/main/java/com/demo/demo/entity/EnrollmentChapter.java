@@ -1,9 +1,8 @@
 package com.demo.demo.entity;
 
-import com.demo.demo.enums.ChapterProgressStatus;
+import com.demo.demo.enums.ProgressStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "EnrollmentChapter")
@@ -17,16 +16,13 @@ public class EnrollmentChapter {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "enrollment_id", nullable = false)
+    @JoinColumn(name = "enrollment_id")
     private Enrollment enrollment;
 
     @ManyToOne
-    @JoinColumn(name = "chapter_id", nullable = false)
+    @JoinColumn(name = "chapter_id")
     private Chapter chapter;
 
-    @Column(name = "completed_at")
-    private LocalDateTime completedAt;
-
     @Enumerated(EnumType.STRING)
-    private ChapterProgressStatus status;
+    private ProgressStatus status;
 }

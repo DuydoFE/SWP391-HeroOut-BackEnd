@@ -47,30 +47,24 @@ public class AuthenticationService implements UserDetailsService {
     public Account register(AccountRequest accountRequest) {
         // Convert DTO to Account entity
         Account account = toEntity(accountRequest);
-
-        // Set default status for new account (usually ACTIVE)
-        // This assumes Account entity has a setStatus method
-        // account.setStatus(AccountStatus.ACTIVE); // Cần đảm bảo Entity Account có phương thức này
-
-
-        // If role is CONSULTANT, create and attach Consultant
-        if (account.getRole() == Role.CONSULTANT) {
-            Consultant consultant = new Consultant();
-            consultant.setAccount(account); // Important for @ManyToOne
-            account.getConsultants().add(consultant); // Add to Set<Consultant>
-        }
-
-        // Encode the password before saving
+      
         account.setPassword(passwordEncoder.encode(account.getPassword()));
 
-        // Save to DB
+        if (account.getRole() == Role.CONSULTANT) {
+            Consultant consultant = new Consultant();
+            consultant.setAccount(account);
+            account.setConsultant(consultant); // ✅ Gán trực tiếp thay vì add vào Set
+        }
+
+        // Lưu vào DB
         Account newAccount = authenticationRepository.save(account);
 
-        // Send welcome email
+        // Gửi email xác nhận
         emailService.sendRegistrationConfirmation(newAccount.getEmail(), newAccount.getName());
 
         return newAccount;
     }
+
 
     public Account getCurrentAccount(){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

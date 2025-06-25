@@ -19,13 +19,19 @@ import java.util.List;
 @AllArgsConstructor
 public class Appointment {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    LocalDate createAt;
-    AppointmentStatus status;
+    private LocalDate createAt;
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
-    Account account;
+    private Account account;
 
+    @OneToOne
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 
 }

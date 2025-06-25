@@ -22,17 +22,19 @@ public class Schedule {
 
 
 
-    LocalDate date;
+    private LocalDate date;
     private String recurrence;
     boolean isBooked =true;
 
     @ManyToOne
-    @JoinColumn(name = "account_id")
-    Account account;
+    @JoinColumn(name = "consultant_id")
+    private Consultant consultant;
 
+    @OneToOne(mappedBy = "schedule")
+    private Appointment appointment;
 
     @ManyToOne
     @JoinColumn(name = "slot_id")
-    Slot slot;
+    private Slot slot;
 
 }

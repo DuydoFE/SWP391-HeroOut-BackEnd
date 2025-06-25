@@ -22,7 +22,7 @@ public class Account implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public long id;
     public String name;
-    public  String email;
+    public String email;
     public String phone;
     private String password;
     public String address;
@@ -42,17 +42,13 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     @JsonIgnore
-    private Set<Consultant> consultants = new HashSet<>();
+    private Consultant consultant;
 
     @OneToMany(mappedBy = "account")
     @JsonIgnore
-    List<Schedule> schedules;
-
-    @OneToMany(mappedBy = "account")
-    @JsonIgnore
-   List<Appointment> appointments;
+    List<Appointment> appointments;
 
     @OneToMany(mappedBy = "account")
     private List<EventParticipation> eventParticipations;

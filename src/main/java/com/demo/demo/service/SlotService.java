@@ -1,10 +1,13 @@
 package com.demo.demo.service;
 
 import com.demo.demo.dto.RegisterSlotDTO;
+import com.demo.demo.dto.ScheduleResponse;
 import com.demo.demo.entity.Account;
 
+import com.demo.demo.entity.Appointment;
 import com.demo.demo.entity.Schedule;
 import com.demo.demo.entity.Slot;
+import com.demo.demo.enums.AppointmentStatus;
 import com.demo.demo.exception.exceptions.BadRequestException;
 import com.demo.demo.repository.AuthenticationRepository;
 import com.demo.demo.repository.ScheduleRepository;
@@ -12,6 +15,7 @@ import com.demo.demo.repository.SlotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,30 +39,58 @@ public class SlotService {
         return slotRepository.findAll();
     }
 
-    public List<Schedule> registerSlot(RegisterSlotDTO registerSlotDTO) {
-        Account account = authenticationRepository.findById(registerSlotDTO.getAcocuntId())
+    public List<ScheduleResponse> registerSlot(RegisterSlotDTO dto) {
+        Account account = authenticationRepository.findById(dto.getAccountId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
 
-        List<Schedule> schedules = new ArrayList<>();
 
-        // Nếu muốn kiểm tra xem đã có lịch trong ngày chưa, bỏ comment dưới đây
-    /*
-    List<Schedule> oldSchedules = scheduleRepository.findScheduleByAccountAndDate(account, registerSlotDTO.getDate());
-    if (!oldSchedules.isEmpty()) {
-        throw new BadRequestException("Đã có ca trong ngày này");
-    }
-    */
+        LocalDate date = dto.getDate();
+        List<Long> slotIds = dto.getSlotIds();
+        long consultantId = dto.getConsultantId();
 
-        for (Slot slot : slotRepository.findAll()) {
-            Schedule schedule = new Schedule();
-            schedule.setSlot(slot);
-            schedule.setAccount(account);
-            schedule.setDate(registerSlotDTO.getDate());
-            schedules.add(schedule); // ✅ Sửa ở đây
+        if (slotIds == null || slotIds.isEmpty()) {
+            throw new BadRequestException("Phải chọn ít nhất một ca để đăng ký");
         }
 
-        return scheduleRepository.saveAll(schedules); // Trả về danh sách Schedule đã lưu
+        // Lấy lịch của consultant trong ngày và các slotId, chưa được book
+        List<Schedule> schedules = scheduleRepository
+                .findByConsultantIdAndDateAndSlotIdInAndIsBookedFalse(consultantId, date, slotIds);
+
+        if (schedules.size() != slotIds.size()) {
+            throw new BadRequestException("Một hoặc nhiều ca đã được đặt hoặc không tồn tại");
+        }
+
+        List<ScheduleResponse> responses = new ArrayList<>();
+
+        for (Schedule schedule : schedules) {
+            schedule.setBooked(true);
+
+            Appointment appointment = new Appointment();
+            appointment.setAccount(account);
+            appointment.setSchedule(schedule);
+            appointment.setCreateAt(LocalDate.now());
+            appointment.setStatus(AppointmentStatus.BOOKED);
+
+            schedule.setAppointment(appointment);
+
+            scheduleRepository.save(schedule); // cascade lưu luôn appointment
+
+            ScheduleResponse response = new ScheduleResponse();
+            response.setId(schedule.getId());
+            response.setDate(schedule.getDate());
+            response.setRecurrence(schedule.getRecurrence());
+            response.setSlotId(schedule.getSlot().getId());
+            response.setConsultantId(schedule.getConsultant().getId());
+            response.setAppointmentId(appointment.getId());
+
+            responses.add(response);
+        }
+
+        return responses;
     }
+
+
+
 
 
     public void generateSlot() {
@@ -86,5 +118,9 @@ public class SlotService {
         }
 
         slotRepository.saveAll(slots); // <--- Trying to save the list
+    }
+
+    public List<Slot> getAvailableSlots() {
+        return slotRepository.findAllByIsDeletedFalse();
     }
 }

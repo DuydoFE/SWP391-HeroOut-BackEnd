@@ -30,11 +30,14 @@ public class Consultant {
     private float rating;
     private int consultations;
     private String bio;
-    
-    @ManyToOne
-    @JoinColumn(name = "account_id")
-    @JsonIgnore
+
+    @OneToOne
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
+
+    @OneToMany(mappedBy = "consultant")
+    @JsonIgnore
+    List<Schedule> schedules;
 
 
 

@@ -1,6 +1,7 @@
 package com.demo.demo.service;
 
 import com.demo.demo.dto.AppointmentRequest;
+import com.demo.demo.dto.AppointmentResponse;
 import com.demo.demo.entity.Account;
 
 import com.demo.demo.entity.Appointment;
@@ -46,46 +47,48 @@ public class AppointmentService {
     @Transactional
     public Appointment create(AppointmentRequest appointmentRequest) {
 
-        //find doctor
-        Account consultant = authenticationRepository.findById(appointmentRequest.getAccountId()).orElseThrow(()->new RuntimeException("consultantnotfound"));
+        // Tìm tài khoản của consultant
+        Account consultant = authenticationRepository.findById(appointmentRequest.getAccountId())
+                .orElseThrow(() -> new RuntimeException("Consultant not found"));
 
-        //check doctor
-        if (!consultant.getRole().equals(Role.CONSULTANT)){
-            throw new BadRequestException("account is not a consultant");
+        // Kiểm tra role của consultant
+        if (!consultant.getRole().equals(Role.CONSULTANT)) {
+            throw new BadRequestException("Account is not a consultant");
         }
 
-        //tim slot
-       Schedule slot = scheduleRepository.findScheduleBySlotIdAndAccountAndDate(
+        // Tìm schedule theo slot, consultant, và ngày
+        Schedule schedule = scheduleRepository.findBySlotIdAndConsultantIdAndDate(
                 appointmentRequest.getSlotId(),
-                consultant,
+                consultant.getConsultant().getId(),  // Lấy từ Account → Consultant
                 appointmentRequest.getAppointmentDate()
-        );
-        //check xem slot da dat hay chua
-        if(!slot.isBooked()){
-            throw new BadRequestException("slot is not available");
+        ).orElseThrow(() -> new BadRequestException("Schedule not found"));
+
+        // Kiểm tra xem slot đã được đặt chưa
+        if (schedule.isBooked()) {
+            throw new BadRequestException("Slot is already booked");
         }
 
-
-
-
-        //lay tai khoan
+        // Lấy tài khoản hiện tại (người đặt lịch)
         Account currentAccount = authenticationService.getCurrentAccount();
 
-
-        //APPONTMENT
+        // Tạo Appointment mới
         Appointment appointment = new Appointment();
         appointment.setCreateAt(LocalDate.now());
         appointment.setStatus(AppointmentStatus.BOOKED);
         appointment.setAccount(currentAccount);
+        appointment.setSchedule(schedule);  // Gán lịch hẹn
+
+        // Gán appointment vào schedule
+        schedule.setAppointment(appointment);
+        schedule.setBooked(true); // Đánh dấu là đã được đặt
+
+        // Lưu cả appointment và schedule
         appointmentRepository.save(appointment);
-
-        //set slot do thanh da dat
-
-        slot.setBooked(false);
-
+        scheduleRepository.save(schedule);
 
         return appointment;
     }
+
     public String checkInAppointment(Long appointmentId) {
         Optional<Appointment> optional = appointmentRepository.findById(appointmentId);
         if (optional.isPresent()) {
@@ -98,5 +101,15 @@ public class AppointmentService {
         } else {
             throw new RuntimeException("Appointment not found");
         }
+    }
+
+    public AppointmentResponse toResponse(Appointment appointment) {
+        AppointmentResponse dto = new AppointmentResponse();
+        dto.setId(appointment.getId());
+        dto.setCreateAt(appointment.getCreateAt());
+        dto.setStatus(appointment.getStatus());
+        dto.setAccountId(appointment.getAccount().getId());
+        dto.setScheduleId(appointment.getSchedule().getId());
+        return dto;
     }
 }

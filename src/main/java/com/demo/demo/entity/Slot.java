@@ -31,4 +31,6 @@ public class Slot {
     @JsonIgnore
     List<Schedule> schedules;
 
+
+
 }

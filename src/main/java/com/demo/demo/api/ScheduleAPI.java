@@ -1,6 +1,7 @@
+// src/main/java/com/demo/demo/api/ScheduleAPI.java
 package com.demo.demo.api;
 
-import com.demo.demo.entity.Schedule;
+import com.demo.demo.dto.ScheduleResponseDto; // Import DTO
 import com.demo.demo.service.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,23 +21,37 @@ public class ScheduleAPI {
         this.scheduleService = scheduleService;
     }
 
-    // Endpoint to get all schedules
+    // Endpoint to get all schedules, returning DTOs
     // GET /api/schedules
     @GetMapping
-    public ResponseEntity<List<Schedule>> getAllSchedules() {
-        List<Schedule> schedules = scheduleService.getAllSchedules();
-        return ResponseEntity.ok(schedules); // Return 200 OK with the list of schedules
+    public ResponseEntity<List<ScheduleResponseDto>> getAllSchedules() { // Kiểu trả về là List of DTOs
+        List<ScheduleResponseDto> schedules = scheduleService.getAllSchedules(); // Gọi service trả về DTO
+        return ResponseEntity.ok(schedules); // Return 200 OK with the list of DTOs
     }
 
-    // Endpoint to get schedules by account ID
-    // GET /api/schedules/account/{accountId}
-    @GetMapping("/account/{accountId}")
-    public ResponseEntity<List<Schedule>> getSchedulesByAccountId(@PathVariable long accountId) {
-        List<Schedule> schedules = scheduleService.getSchedulesByAccountId(accountId);
-        // Return 200 OK with the list of schedules. If no schedules are found for the account,
-        // this will return an empty list, which is a standard successful response.
+    // Endpoint to get schedules by Consultant ID, returning DTOs
+    // GET /api/schedules/consultant/{consultantId}
+    // Đã sửa lại path và tên biến cho rõ ràng như lần sửa trước
+    @GetMapping("/consultant/{consultantId}")
+    public ResponseEntity<List<ScheduleResponseDto>> getSchedulesByConsultantId( // Kiểu trả về là List of DTOs
+                                                                                 @PathVariable long consultantId) {
+
+        List<ScheduleResponseDto> schedules = scheduleService.getSchedulesByConsultantId(consultantId); // Gọi service trả về DTO
+
+        // Trả về 200 OK với danh sách DTO. Nếu không tìm thấy lịch trình nào cho consultant,
+        // nó sẽ trả về một danh sách rỗng ([]), đây là một phản hồi thành công chuẩn.
         return ResponseEntity.ok(schedules);
     }
 
 
+    // Optional: Endpoint để lấy một lịch trình cụ thể theo ID của nó, trả về DTO
+    // GET /api/schedules/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity<ScheduleResponseDto> getScheduleById(@PathVariable long id) { // Kiểu trả về là DTO
+        ScheduleResponseDto schedule = scheduleService.getScheduleById(id); // Gọi service trả về DTO
+        if (schedule == null) {
+            return ResponseEntity.notFound().build(); // Trả về 404 Not Found nếu không tìm thấy
+        }
+        return ResponseEntity.ok(schedule); // Trả về 200 OK với DTO Schedule
+    }
 }

@@ -14,6 +14,7 @@ import com.demo.demo.repository.ScheduleRepository;
 import com.demo.demo.repository.SlotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -39,10 +40,10 @@ public class SlotService {
         return slotRepository.findAll();
     }
 
+    @Transactional
     public List<ScheduleResponse> registerSlot(RegisterSlotDTO dto) {
         Account account = authenticationRepository.findById(dto.getAccountId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
-
 
         LocalDate date = dto.getDate();
         List<Long> slotIds = dto.getSlotIds();
@@ -52,13 +53,9 @@ public class SlotService {
             throw new BadRequestException("Phải chọn ít nhất một ca để đăng ký");
         }
 
-        // Lấy lịch của consultant trong ngày và các slotId, chưa được book
         List<Schedule> schedules = scheduleRepository
                 .findByConsultantIdAndDateAndSlotIdInAndIsBookedFalse(consultantId, date, slotIds);
 
-        if (schedules.size() != slotIds.size()) {
-            throw new BadRequestException("Một hoặc nhiều ca đã được đặt hoặc không tồn tại");
-        }
 
         List<ScheduleResponse> responses = new ArrayList<>();
 
@@ -73,7 +70,7 @@ public class SlotService {
 
             schedule.setAppointment(appointment);
 
-            scheduleRepository.save(schedule); // cascade lưu luôn appointment
+            scheduleRepository.save(schedule); // hoặc dùng appointmentRepository.save nếu không cascade
 
             ScheduleResponse response = new ScheduleResponse();
             response.setId(schedule.getId());
@@ -81,16 +78,13 @@ public class SlotService {
             response.setRecurrence(schedule.getRecurrence());
             response.setSlotId(schedule.getSlot().getId());
             response.setConsultantId(schedule.getConsultant().getId());
-            response.setAppointmentId(appointment.getId());
+            response.setAppointmentId(schedule.getAppointment().getId()); // sau khi save mới an toàn
 
             responses.add(response);
         }
 
         return responses;
     }
-
-
-
 
 
     public void generateSlot() {
@@ -110,8 +104,6 @@ public class SlotService {
             slot.setLabel(start.toString() + " - " + start.plusMinutes(30).toString());
             slot.setSlot_start(start);
             slot.setSlot_end(start.plusMinutes(30));
-
-            // ID is likely not set here, or defaults to 0 if using primitive long
 
             slots.add(slot); // <--- Adding multiple new instances to a list
             start = start.plusMinutes(30);

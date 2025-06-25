@@ -22,20 +22,22 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService {
-    @Autowired
-    AppointmentRepository appointmentRepository;
 
     @Autowired
-    ScheduleRepository scheduleRepository;
+    private AppointmentRepository appointmentRepository;
 
     @Autowired
-    AuthenticationRepository authenticationRepository;
+    private ScheduleRepository scheduleRepository;
 
     @Autowired
-    AuthenticationService authenticationService;
+    private AuthenticationRepository authenticationRepository;
+
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @Autowired
     private JitsiService jitsiService;
@@ -43,66 +45,94 @@ public class AppointmentService {
     @Autowired
     private EmailService emailService;
 
-
+    // 🔵 Tạo Appointment (đã có)
     @Transactional
-    public Appointment create(AppointmentRequest appointmentRequest) {
+    public AppointmentResponse create(AppointmentRequest request) {
+        Account consultantAccount = authenticationRepository.findById(request.getAccountId())
+                .orElseThrow(() -> new BadRequestException("Consultant not found"));
 
-        // Tìm tài khoản của consultant
-        Account consultant = authenticationRepository.findById(appointmentRequest.getAccountId())
-                .orElseThrow(() -> new RuntimeException("Consultant not found"));
-
-        // Kiểm tra role của consultant
-        if (!consultant.getRole().equals(Role.CONSULTANT)) {
+        if (consultantAccount.getRole() != Role.CONSULTANT) {
             throw new BadRequestException("Account is not a consultant");
         }
 
-        // Tìm schedule theo slot, consultant, và ngày
+        Long consultantId = consultantAccount.getConsultant().getId();
         Schedule schedule = scheduleRepository.findBySlotIdAndConsultantIdAndDate(
-                appointmentRequest.getSlotId(),
-                consultant.getConsultant().getId(),  // Lấy từ Account → Consultant
-                appointmentRequest.getAppointmentDate()
+                request.getSlotId(), consultantId, request.getAppointmentDate()
         ).orElseThrow(() -> new BadRequestException("Schedule not found"));
 
-        // Kiểm tra xem slot đã được đặt chưa
         if (schedule.isBooked()) {
-            throw new BadRequestException("Slot is already booked");
+            throw new BadRequestException("Schedule is already booked");
         }
 
-        // Lấy tài khoản hiện tại (người đặt lịch)
-        Account currentAccount = authenticationService.getCurrentAccount();
+        Account member = authenticationService.getCurrentAccount();
 
-        // Tạo Appointment mới
         Appointment appointment = new Appointment();
         appointment.setCreateAt(LocalDate.now());
         appointment.setStatus(AppointmentStatus.BOOKED);
-        appointment.setAccount(currentAccount);
-        appointment.setSchedule(schedule);  // Gán lịch hẹn
+        appointment.setAccount(member);
+        appointment.setSchedule(schedule);
 
-        // Gán appointment vào schedule
         schedule.setAppointment(appointment);
-        schedule.setBooked(true); // Đánh dấu là đã được đặt
+        schedule.setBooked(true);
 
-        // Lưu cả appointment và schedule
         appointmentRepository.save(appointment);
         scheduleRepository.save(schedule);
 
-        return appointment;
+        return toResponse(appointment);
     }
 
+    // 🔵 Đọc tất cả
+    public List<AppointmentResponse> getAll() {
+        return appointmentRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    // 🔵 Đọc theo ID
+    public AppointmentResponse getById(Long id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Appointment not found"));
+        return toResponse(appointment);
+    }
+
+    // 🟡 Cập nhật trạng thái (hoặc mở rộng nếu cần)
+    public AppointmentResponse updateStatus(Long id, AppointmentStatus status) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Appointment not found"));
+
+        appointment.setStatus(status);
+        Appointment saved = appointmentRepository.save(appointment);
+        return toResponse(saved);
+    }
+
+    // 🔴 Xoá appointment (và mở slot)
+    @Transactional
+    public void delete(Long id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Appointment not found"));
+
+        Schedule schedule = appointment.getSchedule();
+
+        // Xoá liên kết giữa schedule và appointment
+        schedule.setAppointment(null);
+        schedule.setBooked(false);
+
+        scheduleRepository.save(schedule);
+        appointmentRepository.delete(appointment);
+    }
+
+    // 🔵 Check-in (gửi link Jitsi) - đã có
     public String checkInAppointment(Long appointmentId) {
-        Optional<Appointment> optional = appointmentRepository.findById(appointmentId);
-        if (optional.isPresent()) {
-            Appointment appointment = optional.get();
-            Account account = appointment.getAccount();
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new BadRequestException("Appointment not found"));
 
-            String meetingLink = jitsiService.createMeetingRoom(account.getName());
-            emailService.sendMeetingLink(account.getEmail(), account.getName(), meetingLink);
-            return meetingLink;
-        } else {
-            throw new RuntimeException("Appointment not found");
-        }
+        Account account = appointment.getAccount();
+        String link = jitsiService.createMeetingRoom(account.getName());
+        emailService.sendMeetingLink(account.getEmail(), account.getName(), link);
+        return link;
     }
 
+    // Mapping DTO
     public AppointmentResponse toResponse(Appointment appointment) {
         AppointmentResponse dto = new AppointmentResponse();
         dto.setId(appointment.getId());
@@ -113,3 +143,5 @@ public class AppointmentService {
         return dto;
     }
 }
+
+

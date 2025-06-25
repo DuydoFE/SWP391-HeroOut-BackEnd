@@ -1,22 +1,19 @@
 package com.demo.demo.service;
 
 import com.demo.demo.dto.RegisterSlotDTO;
-import com.demo.demo.dto.ScheduleResponse;
 import com.demo.demo.entity.Account;
 
-import com.demo.demo.entity.Appointment;
+import com.demo.demo.entity.Consultant;
 import com.demo.demo.entity.Schedule;
 import com.demo.demo.entity.Slot;
-import com.demo.demo.enums.AppointmentStatus;
 import com.demo.demo.exception.exceptions.BadRequestException;
 import com.demo.demo.repository.AuthenticationRepository;
+import com.demo.demo.repository.ConsultantRepository;
 import com.demo.demo.repository.ScheduleRepository;
 import com.demo.demo.repository.SlotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +23,7 @@ import java.util.Optional;
 public class SlotService {
 
     @Autowired
-   SlotRepository slotRepository;
+    SlotRepository slotRepository;
 
     @Autowired
     AuthenticationRepository authenticationRepository;
@@ -34,56 +31,33 @@ public class SlotService {
     @Autowired
     ScheduleRepository scheduleRepository;
 
+    @Autowired
+    ConsultantRepository consultantRepository ;
+
+
+
     public List<Slot> get(){
 
 
         return slotRepository.findAll();
     }
 
-    @Transactional
-    public List<ScheduleResponse> registerSlot(RegisterSlotDTO dto) {
-        Account account = authenticationRepository.findById(dto.getAccountId())
+    public List<Schedule> registerSlot(RegisterSlotDTO registerSlotDTO) {
+        Consultant consultant = consultantRepository.findById(registerSlotDTO.getConsultantId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
 
-        LocalDate date = dto.getDate();
-        List<Long> slotIds = dto.getSlotIds();
-        long consultantId = dto.getConsultantId();
+        List<Schedule> schedules = new ArrayList<>();
 
-        if (slotIds == null || slotIds.isEmpty()) {
-            throw new BadRequestException("Phải chọn ít nhất một ca để đăng ký");
+
+        for (Slot slot : slotRepository.findAll()) {
+            Schedule schedule = new Schedule();
+            schedule.setSlot(slot);
+            schedule.setConsultant(consultant);
+            schedule.setDate(registerSlotDTO.getDate());
+            schedules.add(schedule); // ✅ Sửa ở đây
         }
 
-        List<Schedule> schedules = scheduleRepository
-                .findByConsultantIdAndDateAndSlotIdInAndIsBookedFalse(consultantId, date, slotIds);
-
-
-        List<ScheduleResponse> responses = new ArrayList<>();
-
-        for (Schedule schedule : schedules) {
-            schedule.setBooked(true);
-
-            Appointment appointment = new Appointment();
-            appointment.setAccount(account);
-            appointment.setSchedule(schedule);
-            appointment.setCreateAt(LocalDate.now());
-            appointment.setStatus(AppointmentStatus.BOOKED);
-
-            schedule.setAppointment(appointment);
-
-            scheduleRepository.save(schedule); // hoặc dùng appointmentRepository.save nếu không cascade
-
-            ScheduleResponse response = new ScheduleResponse();
-            response.setId(schedule.getId());
-            response.setDate(schedule.getDate());
-            response.setRecurrence(schedule.getRecurrence());
-            response.setSlotId(schedule.getSlot().getId());
-            response.setConsultantId(schedule.getConsultant().getId());
-            response.setAppointmentId(schedule.getAppointment().getId()); // sau khi save mới an toàn
-
-            responses.add(response);
-        }
-
-        return responses;
+        return scheduleRepository.saveAll(schedules); // Trả về danh sách Schedule đã lưu
     }
 
 
@@ -105,14 +79,12 @@ public class SlotService {
             slot.setSlot_start(start);
             slot.setSlot_end(start.plusMinutes(30));
 
+            // ID is likely not set here, or defaults to 0 if using primitive long
+
             slots.add(slot); // <--- Adding multiple new instances to a list
             start = start.plusMinutes(30);
         }
 
         slotRepository.saveAll(slots); // <--- Trying to save the list
-    }
-
-    public List<Slot> getAvailableSlots() {
-        return slotRepository.findAllByIsDeletedFalse();
     }
 }

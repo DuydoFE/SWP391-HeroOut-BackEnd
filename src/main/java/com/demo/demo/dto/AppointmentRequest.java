@@ -9,8 +9,9 @@ import java.util.List;
 @Data
 public class AppointmentRequest {
 
-    private long slotId;
-    private long accountId;
-    private LocalDate appointmentDate;
+    long slotId;
+    long consultantId;
+
+    LocalDate appointmentDate;
 
 }

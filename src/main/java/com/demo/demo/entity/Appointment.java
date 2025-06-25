@@ -2,6 +2,7 @@ package com.demo.demo.entity;
 
 
 import com.demo.demo.enums.AppointmentStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,17 +22,19 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private LocalDate createAt;
+    LocalDate createAt;
 
     @Enumerated(EnumType.STRING)
-    private AppointmentStatus status;
+    AppointmentStatus status;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
-    private Account account;
+    Account account;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "schedule_id")
-    private Schedule schedule;
+    @JsonIgnore
+    Schedule schedule;
+
 
 }

@@ -24,13 +24,11 @@ public class Slot {
     String label;
     LocalTime slot_start;
     LocalTime slot_end;
-   boolean isDeleted = false;
+    boolean isDeleted = false;
 
 
     @OneToMany(mappedBy = "slot")
     @JsonIgnore
     List<Schedule> schedules;
-
-
 
 }

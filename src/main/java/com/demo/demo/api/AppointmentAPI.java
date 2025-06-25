@@ -2,6 +2,7 @@ package com.demo.demo.api;
 
 
 import com.demo.demo.dto.AppointmentRequest;
+import com.demo.demo.dto.AppointmentResponse;
 import com.demo.demo.entity.Appointment;
 import com.demo.demo.service.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,10 +18,9 @@ public class AppointmentAPI {
     private AppointmentService appointmentService;
 
     @PostMapping
-    public ResponseEntity <Appointment> create(@RequestBody AppointmentRequest appointmentRequest){
-
-        Appointment appointment = appointmentService.create(appointmentRequest);
-        return ResponseEntity.ok(appointment);
+    public ResponseEntity<AppointmentResponse> create(@RequestBody AppointmentRequest request) {
+        Appointment appointment = appointmentService.create(request);
+        return ResponseEntity.ok(appointmentService.toResponse(appointment)); // <-- Gọi từ service
     }
 
     @PostMapping("/{id}/checkin")

@@ -47,24 +47,25 @@ public class AuthenticationService implements UserDetailsService {
         // Convert DTO to Account entity
         Account account = toEntity(accountRequest);
 
-        // If role is CONSULTANT, create and attach Consultant
-        if (account.getRole() == Role.CONSULTANT) {
-            Consultant consultant = new Consultant();
-            consultant.setAccount(account); // Important for @ManyToOne
-            account.getConsultants().add(consultant); // Add to Set<Consultant>
-        }
-
-        // Encode the password before saving
+        // Encode password trước khi lưu
         account.setPassword(passwordEncoder.encode(account.getPassword()));
 
-        // Save to DB
+        // Nếu là consultant, tạo đối tượng Consultant và gán cho account
+        if (account.getRole() == Role.CONSULTANT) {
+            Consultant consultant = new Consultant();
+            consultant.setAccount(account);
+            account.setConsultant(consultant); // ✅ Gán trực tiếp thay vì add vào Set
+        }
+
+        // Lưu vào DB
         Account newAccount = authenticationRepository.save(account);
 
-        // Send welcome email
+        // Gửi email xác nhận
         emailService.sendRegistrationConfirmation(newAccount.getEmail(), newAccount.getName());
 
         return newAccount;
     }
+
 
     public Account getCurrentAccount(){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();

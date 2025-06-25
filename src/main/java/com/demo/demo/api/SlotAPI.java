@@ -1,8 +1,7 @@
 package com.demo.demo.api;
 
 import com.demo.demo.dto.RegisterSlotDTO;
-
-import com.demo.demo.entity.Schedule;
+import com.demo.demo.dto.ScheduleResponse;
 import com.demo.demo.entity.Slot;
 import com.demo.demo.service.SlotService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,22 +17,23 @@ import java.util.List;
 public class SlotAPI {
 
     @Autowired
-    SlotService slotService;
+    private SlotService slotService;
 
-    @PostMapping
-    public void generateSlot(){
+    @PostMapping("/generate")
+    public ResponseEntity<Void> generateSlot() {
         slotService.generateSlot();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
-    public ResponseEntity getSlot(){
+    public ResponseEntity<List<Slot>> getSlot() {
         List<Slot> slots = slotService.get();
         return ResponseEntity.ok(slots);
     }
 
-    @PostMapping("register")
-    public ResponseEntity registerSlot(@RequestBody RegisterSlotDTO registerSlotDTO){
-        List<Schedule> schedules = slotService.registerSlot(registerSlotDTO);
-        return ResponseEntity.ok(schedules);
+    @PostMapping("/register")
+    public ResponseEntity<List<ScheduleResponse>> registerSlot(@RequestBody RegisterSlotDTO registerSlotDTO) {
+        List<ScheduleResponse> responses = slotService.registerSlot(registerSlotDTO);
+        return ResponseEntity.ok(responses);
     }
 }

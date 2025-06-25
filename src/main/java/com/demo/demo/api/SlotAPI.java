@@ -1,9 +1,9 @@
 package com.demo.demo.api;
 
 import com.demo.demo.dto.RegisterSlotDTO;
-import com.demo.demo.dto.ScheduleResponse;
+
+import com.demo.demo.entity.Schedule;
 import com.demo.demo.entity.Slot;
-import com.demo.demo.exception.exceptions.BadRequestException;
 import com.demo.demo.service.SlotService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,28 +18,22 @@ import java.util.List;
 public class SlotAPI {
 
     @Autowired
-    private SlotService slotService;
+    SlotService slotService;
 
-    @PostMapping("/generate")
-    public ResponseEntity<Void> generateSlot() {
+    @PostMapping
+    public void generateSlot(){
         slotService.generateSlot();
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<Slot>> getSlot() {
+    public ResponseEntity getSlot(){
         List<Slot> slots = slotService.get();
         return ResponseEntity.ok(slots);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<List<ScheduleResponse>> registerSlot(@RequestBody RegisterSlotDTO registerSlotDTO) {
-        List<ScheduleResponse> responses = slotService.registerSlot(registerSlotDTO);
-        return ResponseEntity.ok(responses);
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequest(BadRequestException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+    @PostMapping("register")
+    public ResponseEntity registerSlot(@RequestBody RegisterSlotDTO registerSlotDTO){
+        List<Schedule> schedules = slotService.registerSlot(registerSlotDTO);
+        return ResponseEntity.ok(schedules);
     }
 }

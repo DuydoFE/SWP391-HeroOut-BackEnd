@@ -42,9 +42,11 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     @JsonIgnore
-    private Consultant consultant;
+    private Set<Consultant> consultants = new HashSet<>();
+
+
 
     @OneToMany(mappedBy = "account")
     @JsonIgnore

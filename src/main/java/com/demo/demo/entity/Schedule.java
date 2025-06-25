@@ -1,5 +1,6 @@
 package com.demo.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,19 +23,23 @@ public class Schedule {
 
 
 
-    private LocalDate date;
+    LocalDate date;
     private String recurrence;
-    boolean isBooked = false;
+    boolean isBooked =true;
 
     @ManyToOne
     @JoinColumn(name = "consultant_id")
-    private Consultant consultant;
+    Consultant consultant;
 
-    @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL)
-    private Appointment appointment;
 
     @ManyToOne
     @JoinColumn(name = "slot_id")
-    private Slot slot;
+    Slot slot;
+
+    @OneToMany
+
+            (mappedBy = "schedule")
+    @JsonIgnore
+    List<Appointment> appointments;
 
 }

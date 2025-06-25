@@ -37,7 +37,7 @@ public class Consultant {
 
     @OneToMany(mappedBy = "consultant")
     @JsonIgnore
-    List<Schedule> schedules;
+    private List<Schedule> schedules;
 
 
 

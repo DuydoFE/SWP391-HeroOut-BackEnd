@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface SlotRepository extends JpaRepository<Slot, Long> {
     List<Slot> findByIsDeletedFalse();
-    List<Slot> findAllByIsDeletedFalse();
-
 }

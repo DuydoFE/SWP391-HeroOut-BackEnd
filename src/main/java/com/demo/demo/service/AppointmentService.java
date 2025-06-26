@@ -1,6 +1,7 @@
 package com.demo.demo.service;
 
 import com.demo.demo.dto.AppointmentRequest;
+import com.demo.demo.dto.AppointmentResponse;
 import com.demo.demo.entity.Account;
 import com.demo.demo.entity.Appointment;
 import com.demo.demo.entity.Consultant;
@@ -8,6 +9,7 @@ import com.demo.demo.entity.Schedule;
 import com.demo.demo.enums.AppointmentStatus;
 import com.demo.demo.enums.Role;
 import com.demo.demo.exception.exceptions.BadRequestException;
+import com.demo.demo.exception.exceptions.ResourceNotFoundException;
 import com.demo.demo.repository.AppointmentRepository;
 import com.demo.demo.repository.AuthenticationRepository;
 import com.demo.demo.repository.ConsultantRepository;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors; // Import Collectors
 
 @Service
 public class AppointmentService {
@@ -28,8 +31,8 @@ public class AppointmentService {
     @Autowired
     ScheduleRepository scheduleRepository;
 
-    @Autowired(required = false) // Make it not required if not used
-    AuthenticationRepository authenticationRepository; // Still marked as unused
+    @Autowired(required = false)
+    AuthenticationRepository authenticationRepository;
 
     @Autowired
     AuthenticationService authenticationService;
@@ -48,32 +51,27 @@ public class AppointmentService {
     public Appointment create(AppointmentRequest appointmentRequest) {
 
         //find doctor
-        Consultant consultant = consultantRepository.findById(appointmentRequest.getConsultantId()).orElseThrow(()->new RuntimeException("consultantnotfound"));
+        Consultant consultant = consultantRepository.findById(appointmentRequest.getConsultantId()).orElseThrow(()->new ResourceNotFoundException("Consultant not found"));
 
         //check doctor
         if (!consultant.getAccount().getRole().equals(Role.CONSULTANT)){
-            throw new BadRequestException("account is not a consultant");
+            throw new BadRequestException("Account is not a consultant");
         }
 
         //tim slot
-        // Note: scheduleRepository.findScheduleBySlotIdAndConsultantAndDate is assumed to exist and return a Schedule
         Schedule slot = scheduleRepository.findScheduleBySlotIdAndConsultantAndDate(
                 appointmentRequest.getSlotId(),
                 consultant,
                 appointmentRequest.getAppointmentDate()
         );
-        //check xem slot da dat hay chua
-        // Note: isBooked() returning true means it's *available* based on the logic below.
-        // If isBooked() means it's *already* booked, the check should be `if (slot.isBooked())`.
-        if(!slot.isBooked()){ // This seems to mean "if it's NOT available (i.e., booked)"
-            // Correcting the logic based on the original comment "check xem slot da dat hay chua" and the subsequent slot.setBooked(false)
-            // If isBooked() == true means "available", the check should be if (!slot.isBooked()) throw BadRequest
-            // If isBooked() == true means "booked", the check should be if (slot.isBooked()) throw BadRequest
-            // Assuming isBooked() == true means "available" based on the code's flow
-            // So the original logic `if(!slot.isBooked())` means `if (slot is NOT available)`
-            throw new BadRequestException("slot is not available");
+        if (slot == null) {
+            throw new ResourceNotFoundException("Schedule slot not found for the given date and consultant");
         }
 
+        //check xem slot da dat hay chua
+        if(!slot.isBooked()){
+            throw new BadRequestException("Slot is not available");
+        }
 
         //lay tai khoan
         Account currentAccount = authenticationService.getCurrentAccount();
@@ -85,17 +83,14 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.BOOKED);
         appointment.setAccount(currentAccount);
         appointment.setSchedule(slot);
-        // Lấy description từ request và đặt vào entity
-        appointment.setDescription(appointmentRequest.getDescription()); // <-- Dòng thêm vào
-        appointmentRepository.save(appointment);
+        appointment.setDescription(appointmentRequest.getDescription());
+        Appointment savedAppointment = appointmentRepository.save(appointment);
 
         //set slot do thanh da dat
-        // Note: This line makes the slot *not* booked (booked=false) after booking.
-        // This seems counter-intuitive. Usually, booking marks a slot as booked (booked=true).
-        // Please double-check the intended logic for the `isBooked` flag.
-        slot.setBooked(false); // <-- Check this logic
+        slot.setBooked(false); // Logic này vẫn cần kiểm tra lại ý nghĩa của `isBooked` true/false
+        scheduleRepository.save(slot);
 
-        return appointment;
+        return savedAppointment;
     }
 
     public String checkInAppointment(Long appointmentId) {
@@ -108,7 +103,50 @@ public class AppointmentService {
             emailService.sendMeetingLink(account.getEmail(), account.getName(), meetingLink);
             return meetingLink;
         } else {
-            throw new RuntimeException("Appointment not found");
+            throw new ResourceNotFoundException("Appointment not found");
         }
     }
+
+    // Phương thức để lấy Appointment theo ID và trả về DTO
+    public AppointmentResponse getAppointmentById(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id " + appointmentId));
+
+        // Sử dụng phương thức ánh xạ private
+        return mapToAppointmentResponse(appointment);
+    }
+
+    // --- Phương thức mới để lấy TẤT CẢ Appointment và trả về List DTO ---
+    public List<AppointmentResponse> getAllAppointments() {
+        List<Appointment> appointments = appointmentRepository.findAll(); // Lấy tất cả entities
+
+        // Sử dụng Stream để ánh xạ từng entity sang DTO
+        return appointments.stream()
+                .map(this::mapToAppointmentResponse) // Ánh xạ từng Appointment dùng phương thức private
+                .collect(Collectors.toList()); // Thu thập kết quả vào List
+    }
+    // --------------------------------------------------------------
+
+    // --- Phương thức private để ánh xạ Appointment entity sang AppointmentResponse DTO ---
+    private AppointmentResponse mapToAppointmentResponse(Appointment appointment) {
+        AppointmentResponse response = new AppointmentResponse();
+        response.setId(appointment.getId());
+        response.setCreateAt(appointment.getCreateAt());
+        response.setDescription(appointment.getDescription());
+        response.setStatus(appointment.getStatus());
+
+        if (appointment.getAccount() != null) {
+            response.setAccountId(appointment.getAccount().getId());
+        }
+
+        // Lấy consultantId từ schedule
+        if (appointment.getSchedule() != null && appointment.getSchedule().getConsultant() != null) {
+            response.setConsultantId(appointment.getSchedule().getConsultant().getId());
+        } else {
+            response.setConsultantId(null); // Hoặc giá trị mặc định khác nếu cần
+        }
+
+        return response;
+    }
+    // -----------------------------------------------------------------------------------
 }

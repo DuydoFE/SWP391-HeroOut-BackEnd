@@ -2,25 +2,24 @@
 package com.demo.demo.service;
 
 import com.demo.demo.entity.Schedule;
-import com.demo.demo.entity.Slot; // Cần import Slot entity
+import com.demo.demo.entity.Slot;
 import com.demo.demo.repository.ScheduleRepository;
-import com.demo.demo.dto.ScheduleResponseDto; // Import DTO
-import com.demo.demo.dto.SlotDto; // Import DTO
+import com.demo.demo.dto.ScheduleResponseDto;
+import com.demo.demo.dto.SlotDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors; // Cần cho stream().map().collect()
-import java.time.LocalTime; // Cần import LocalTime
+import java.util.stream.Collectors;
+import java.time.LocalTime;
 
 
-@Service // Marks this class as a Spring Service
+@Service
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
 
-    // Constructor injection for the repository
     @Autowired
     public ScheduleService(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
@@ -33,19 +32,24 @@ public class ScheduleService {
         }
 
         SlotDto slotDto = null;
-        Slot slot = schedule.getSlot(); // Lấy Slot entity từ Schedule
+        Long currentSlotId = null;
+        Slot slot = schedule.getSlot();
         if (slot != null) {
-            // Tạo SlotDto từ Slot entity
-            // Lấy dữ liệu LocalTime từ getSlot_start() và getSlot_end()
             slotDto = new SlotDto(slot.getSlot_start(), slot.getSlot_end());
+            currentSlotId = slot.getId();
         }
 
-        // Tạo ScheduleResponseDto từ Schedule entity và SlotDto
+        // Chuyển đổi giá trị boolean isBooked sang int 0 hoặc 1
+        int bookedStatusInt = schedule.isBooked() ? 1 : 0; // <-- Logic chuyển đổi
+
+        // Tạo ScheduleResponseDto với giá trị int mới
         return new ScheduleResponseDto(
                 schedule.getId(),
                 schedule.getDate(),
                 schedule.getRecurrence(),
-                slotDto // Gán SlotDto đã tạo
+                bookedStatusInt, // <-- Sử dụng giá trị int đã chuyển đổi
+                currentSlotId,
+                slotDto
         );
     }
 

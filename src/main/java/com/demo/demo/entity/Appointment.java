@@ -25,6 +25,7 @@ public class Appointment {
     LocalDate createAt;
     private String description;
 
+
     @Enumerated(EnumType.STRING)
     AppointmentStatus status;
 

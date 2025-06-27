@@ -1,5 +1,6 @@
 package com.demo.demo.dto;
 
+import com.demo.demo.enums.AgeGroup;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -10,7 +11,7 @@ public class CourseResponse {
     private String description;
     private String objectives;
     private String overview;
-    private String ageGroup;
+    private AgeGroup ageGroup;
     private LocalDateTime createdAt;
+    private long total;
 }
-

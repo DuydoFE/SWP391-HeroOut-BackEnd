@@ -5,4 +5,5 @@ import com.demo.demo.dto.CourseEnrollmentResponse;
 public interface EnrollmentService {
     CourseEnrollmentResponse enrollToCourse(Long courseId, Long accountId);
     void completeChapter(Long enrollmentChapterId);
+    void completeChapterByChapterAndAccount(Long chapterId, Long accountId);
 }

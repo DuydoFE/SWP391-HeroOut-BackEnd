@@ -1,5 +1,7 @@
 package com.demo.demo.entity;
 
+import com.demo.demo.enums.AgeGroup;
+import com.demo.demo.enums.ProgressStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -18,10 +20,9 @@ public class Course {
 
     private String title;
     private String description;
-    private String instructor;
     private String objectives;
     private String overview;
-    private String ageGroup;
+    private AgeGroup ageGroup;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

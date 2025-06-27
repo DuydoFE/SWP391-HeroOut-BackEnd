@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     Optional<Enrollment> findByCourse_IdAndAccount_Id(Long courseId, Long accountId);
-}
 
+    long countByCourse_IdAndAccountIsNotNull(Long courseId);
+}

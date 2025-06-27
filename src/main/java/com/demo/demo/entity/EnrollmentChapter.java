@@ -23,6 +23,10 @@ public class EnrollmentChapter {
     @JoinColumn(name = "chapter_id")
     private Chapter chapter;
 
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
     @Enumerated(EnumType.STRING)
     private ProgressStatus status;
 }

@@ -36,21 +36,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public CourseEnrollmentResponse enrollToCourse(Long courseId, Long accountId) {
-        // Check if already enrolled
         Optional<Enrollment> existingOpt = enrollmentRepository.findByCourse_IdAndAccount_Id(courseId, accountId);
         if (existingOpt.isPresent()) {
             return modelMapper.map(existingOpt.get(), CourseEnrollmentResponse.class);
         }
 
-        // Get course
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        // Get account
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        // Create new Enrollment
         Enrollment enrollment = new Enrollment();
         enrollment.setCourse(course);
         enrollment.setAccount(account);
@@ -59,11 +55,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
 
-        // Create related EnrollmentChapters
         List<EnrollmentChapter> ecList = course.getChapters().stream().map(ch -> {
             EnrollmentChapter ec = new EnrollmentChapter();
             ec.setChapter(ch);
             ec.setEnrollment(savedEnrollment);
+            ec.setAccount(account);
             ec.setStatus(ProgressStatus.INPROGRESS);
             return ec;
         }).collect(Collectors.toList());
@@ -75,15 +71,39 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public void completeChapter(Long enrollmentChapterId) {
-        // Find chapter
         EnrollmentChapter ec = enrollmentChapterRepository.findById(enrollmentChapterId)
                 .orElseThrow(() -> new RuntimeException("EnrollmentChapter not found"));
 
-        // Mark as completed
+        if (ec.getAccount() == null && ec.getEnrollment() != null) {
+            ec.setAccount(ec.getEnrollment().getAccount());
+        }
+
         ec.setStatus(ProgressStatus.COMPLETED);
         enrollmentChapterRepository.save(ec);
 
-        // Check if all chapters completed
+        Enrollment enrollment = ec.getEnrollment();
+        List<EnrollmentChapter> allChapters = enrollmentChapterRepository.findByEnrollmentId(enrollment.getId());
+
+        boolean allCompleted = allChapters.stream()
+                .allMatch(ch -> ch.getStatus() == ProgressStatus.COMPLETED);
+
+        if (allCompleted) {
+            enrollment.setStatus(ProgressStatus.COMPLETED);
+            enrollmentRepository.save(enrollment);
+        }
+    }
+
+    @Override
+    public void completeChapterByChapterAndAccount(Long chapterId, Long accountId) {
+        EnrollmentChapter ec = enrollmentChapterRepository
+                .findByChapter_IdAndAccount_Id(chapterId, accountId)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("EnrollmentChapter not found"));
+
+        ec.setStatus(ProgressStatus.COMPLETED);
+        enrollmentChapterRepository.save(ec);
+
         Enrollment enrollment = ec.getEnrollment();
         List<EnrollmentChapter> allChapters = enrollmentChapterRepository.findByEnrollmentId(enrollment.getId());
 

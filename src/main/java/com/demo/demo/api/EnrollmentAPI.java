@@ -20,9 +20,11 @@ public class EnrollmentAPI {
         return enrollmentService.enrollToCourse(courseId, accountId);
     }
 
-    @PostMapping("/complete-chapter/{id}")
-    public ResponseEntity<?> completeChapter(@PathVariable Long id) {
-        enrollmentService.completeChapter(id);
+    @PostMapping("/complete-chapter")
+    public ResponseEntity<?> completeChapterByChapterAndAccount(
+            @RequestParam Long chapterId,
+            @RequestParam Long accountId) {
+        enrollmentService.completeChapterByChapterAndAccount(chapterId, accountId);
         return ResponseEntity.ok("Chapter completed.");
     }
 }

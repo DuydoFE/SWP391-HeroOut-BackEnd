@@ -25,19 +25,6 @@ public class ChapterService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public ChapterResponse createChapter(ChapterRequest request, Long courseId) {
-        Chapter chapter = new Chapter();
-        chapter.setTitle(request.getTitle());
-        chapter.setContent(request.getContent());
-
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-        chapter.setCourse(course);
-
-        return modelMapper.map(chapterRepository.save(chapter), ChapterResponse.class);
-    }
-
-
     public ChapterResponse updateChapter(Long id, ChapterRequest request, Long courseId) {
         Chapter chapter = chapterRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Chapter not found"));
@@ -53,7 +40,6 @@ public class ChapterService {
 
         return modelMapper.map(chapterRepository.save(chapter), ChapterResponse.class);
     }
-
 
     public ChapterResponse getChapterById(Long id) {
         Chapter chapter = chapterRepository.findById(id)

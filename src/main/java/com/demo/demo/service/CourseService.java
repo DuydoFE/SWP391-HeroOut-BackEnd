@@ -2,21 +2,27 @@ package com.demo.demo.service;
 
 import com.demo.demo.dto.CourseRequest;
 import com.demo.demo.dto.CourseResponse;
+import com.demo.demo.dto.CourseCreateResponse;
+import com.demo.demo.dto.ChapterResponse;
 import com.demo.demo.dto.InProgressCourseResponse;
 import com.demo.demo.entity.Course;
 import com.demo.demo.entity.Enrollment;
+import com.demo.demo.entity.Chapter;
 import com.demo.demo.enums.ProgressStatus;
 import com.demo.demo.repository.CourseRepository;
 import com.demo.demo.repository.EnrollmentRepository;
+import com.demo.demo.repository.ChapterRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CourseService {
 
     @Autowired
@@ -26,12 +32,41 @@ public class CourseService {
     private EnrollmentRepository enrollmentRepository;
 
     @Autowired
+    private ChapterRepository chapterRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
-    public CourseResponse createCourse(CourseRequest request) {
-        Course course = modelMapper.map(request, Course.class);
+    public CourseCreateResponse createCourse(CourseRequest request) {
+        // Tạo course mà không map chapters field
+        Course course = new Course();
+        course.setTitle(request.getTitle());
+        course.setDescription(request.getDescription());
+        course.setObjectives(request.getObjectives());
+        course.setOverview(request.getOverview());
+        course.setAgeGroup(request.getAgeGroup());
         course.setCreatedAt(LocalDateTime.now());
+
         Course saved = courseRepository.save(course);
+
+        // Tạo chapters nếu có trong request
+        List<ChapterResponse> chapterResponses = null;
+        if (request.getChapters() != null && !request.getChapters().isEmpty()) {
+            chapterResponses = request.getChapters().stream().map(chapterRequest -> {
+                Chapter chapter = new Chapter();
+                chapter.setTitle(chapterRequest.getTitle());
+                chapter.setContent(chapterRequest.getContent());
+                chapter.setCourse(saved);
+                Chapter savedChapter = chapterRepository.save(chapter);
+
+                ChapterResponse chapterResponse = new ChapterResponse();
+                chapterResponse.setId(savedChapter.getId());
+                chapterResponse.setCourseId(savedChapter.getCourse().getId());
+                chapterResponse.setTitle(savedChapter.getTitle());
+                chapterResponse.setContent(savedChapter.getContent());
+                return chapterResponse;
+            }).collect(Collectors.toList());
+        }
 
         Enrollment enrollment = new Enrollment();
         enrollment.setCourse(saved);
@@ -40,7 +75,19 @@ public class CourseService {
         enrollment.setCreatedAt(LocalDateTime.now());
         enrollmentRepository.save(enrollment);
 
-        return mapCourseWithTotal(saved);
+        // Tạo response với chapters
+        CourseCreateResponse response = new CourseCreateResponse();
+        response.setId(saved.getId());
+        response.setTitle(saved.getTitle());
+        response.setDescription(saved.getDescription());
+        response.setObjectives(saved.getObjectives());
+        response.setOverview(saved.getOverview());
+        response.setAgeGroup(saved.getAgeGroup());
+        response.setCreatedAt(saved.getCreatedAt());
+        response.setTotalEnrollment(0); // Mới tạo nên chưa có enrollment
+        response.setChapters(chapterResponses);
+
+        return response;
     }
 
     public CourseResponse updateCourse(Long id, CourseRequest request) {

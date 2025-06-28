@@ -2,6 +2,7 @@ package com.demo.demo.api;
 
 import com.demo.demo.dto.CourseRequest;
 import com.demo.demo.dto.CourseResponse;
+import com.demo.demo.dto.CourseCreateResponse;
 import com.demo.demo.dto.InProgressCourseResponse;
 import com.demo.demo.enums.ProgressStatus;
 import com.demo.demo.service.CourseService;
@@ -20,7 +21,7 @@ public class CourseAPI {
     private CourseService courseService;
 
     @PostMapping
-    public CourseResponse createCourse(@RequestBody CourseRequest request) {
+    public CourseCreateResponse createCourse(@RequestBody CourseRequest request) {
         return courseService.createCourse(request);
     }
 
@@ -48,7 +49,6 @@ public class CourseAPI {
     public List<InProgressCourseResponse> getInProgressCourses(@RequestParam Long accountId) {
         return courseService.getCoursesByStatusAndAccount(accountId, ProgressStatus.INPROGRESS);
     }
-
 
     @DeleteMapping("/{id}")
     public void deleteCourse(@PathVariable Long id) {

@@ -2,6 +2,7 @@ package com.demo.demo.service;
 
 import com.demo.demo.dto.AppointmentRequest;
 import com.demo.demo.dto.AppointmentResponse;
+import com.demo.demo.dto.CheckInResponse;
 import com.demo.demo.entity.Account;
 import com.demo.demo.entity.Appointment;
 import com.demo.demo.entity.Consultant;
@@ -93,19 +94,46 @@ public class AppointmentService {
         return savedAppointment;
     }
 
-    public String checkInAppointment(Long appointmentId) {
-        Optional<Appointment> optional = appointmentRepository.findById(appointmentId);
-        if (optional.isPresent()) {
-            Appointment appointment = optional.get();
-            Account account = appointment.getAccount();
+    public CheckInResponse checkInAppointment(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
 
-            String meetingLink = jitsiService.createMeetingRoom(account.getName());
-            emailService.sendMeetingLink(account.getEmail(), account.getName(), meetingLink);
-            return meetingLink;
-        } else {
-            throw new ResourceNotFoundException("Appointment not found");
+        if (appointment.isCheckedIn()) {
+            throw new IllegalStateException("This appointment has already been checked in.");
         }
+
+        Account member = appointment.getAccount();
+        Schedule schedule = appointment.getSchedule();
+        Consultant consultant = schedule.getConsultant();
+
+        if (consultant == null || consultant.getAccount() == null) {
+            throw new IllegalStateException("Consultant account not found for this schedule");
+        }
+
+        Account consultantAccount = consultant.getAccount();
+
+        String meetingLink = jitsiService.createMeetingRoom(member.getName());
+
+        // Gửi email
+        emailService.sendMeetingLink(member.getEmail(), member.getName(), meetingLink);
+        emailService.sendMeetingLink(consultantAccount.getEmail(), consultantAccount.getName(), meetingLink);
+
+        // Cập nhật database
+        appointment.setMeetingLink(meetingLink);
+        appointment.setCheckedIn(true);
+        appointmentRepository.save(appointment);
+
+        // Trả về DTO
+        CheckInResponse response = new CheckInResponse();
+        response.setAppointmentId(appointment.getId());
+        response.setMeetingLink(meetingLink);
+        response.setCheckedIn(true);
+
+        return response;
     }
+
+
+
 
     // Phương thức để lấy Appointment theo ID và trả về DTO
     public AppointmentResponse getAppointmentById(Long appointmentId) {

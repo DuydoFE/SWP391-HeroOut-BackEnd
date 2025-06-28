@@ -3,6 +3,7 @@ package com.demo.demo.api;
 
 import com.demo.demo.dto.AppointmentRequest;
 import com.demo.demo.dto.AppointmentResponse;
+import com.demo.demo.dto.CheckInResponse;
 import com.demo.demo.entity.Appointment;
 import com.demo.demo.service.AppointmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,11 +27,10 @@ public class AppointmentAPI {
         return ResponseEntity.ok(appointment);
     }
 
-    @PostMapping("/{id}/checkin")
-    public String checkIn(@PathVariable("id") Long appointmentId) {
-        return appointmentService.checkInAppointment(appointmentId);
+    @PostMapping("/{id}/check-in")
+    public CheckInResponse checkIn(@PathVariable Long id) {
+        return appointmentService.checkInAppointment(id);
     }
-
     // Phương thức API để lấy Appointment theo ID
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable("id") Long appointmentId) {

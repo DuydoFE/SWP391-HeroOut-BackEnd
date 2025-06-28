@@ -22,10 +22,18 @@ public class Course {
     private String description;
     private String objectives;
     private String overview;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "age_group")
     private AgeGroup ageGroup;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Chapter> chapters;

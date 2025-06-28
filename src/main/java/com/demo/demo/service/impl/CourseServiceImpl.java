@@ -31,6 +31,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseResponse createCourse(CourseRequest request) {
         Course course = modelMapper.map(request, Course.class);
+        course.setCreatedAt(LocalDateTime.now());
         Course saved = courseRepository.save(course);
 
         Enrollment enrollment = new Enrollment();

@@ -2,6 +2,7 @@ package com.demo.demo.api;
 
 import com.demo.demo.dto.CourseRequest;
 import com.demo.demo.dto.CourseResponse;
+import com.demo.demo.dto.InProgressCourseResponse;
 import com.demo.demo.enums.ProgressStatus;
 import com.demo.demo.service.CourseService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -44,9 +45,10 @@ public class CourseAPI {
     }
 
     @GetMapping("/in-progress")
-    public List<CourseResponse> getInProgressCourses(@RequestParam Long accountId) {
+    public List<InProgressCourseResponse> getInProgressCourses(@RequestParam Long accountId) {
         return courseService.getCoursesByStatusAndAccount(accountId, ProgressStatus.INPROGRESS);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteCourse(@PathVariable Long id) {

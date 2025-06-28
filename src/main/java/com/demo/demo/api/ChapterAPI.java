@@ -18,14 +18,19 @@ public class ChapterAPI {
     private ChapterService chapterService;
 
     @PostMapping
-    public ChapterResponse createChapter(@RequestBody ChapterRequest request) {
-        return chapterService.createChapter(request);
+    public ChapterResponse createChapter(@RequestBody ChapterRequest request,
+                                         @RequestParam Long courseId) {
+        return chapterService.createChapter(request, courseId);
     }
 
+
     @PutMapping("/{id}")
-    public ChapterResponse updateChapter(@PathVariable Long id, @RequestBody ChapterRequest request) {
-        return chapterService.updateChapter(id, request);
+    public ChapterResponse updateChapter(@PathVariable Long id,
+                                         @RequestBody ChapterRequest request,
+                                         @RequestParam Long courseId) {
+        return chapterService.updateChapter(id, request, courseId);
     }
+
 
     @GetMapping("/{id}")
     public ChapterResponse getChapterById(@PathVariable Long id) {

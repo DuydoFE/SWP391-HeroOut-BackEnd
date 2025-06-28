@@ -29,4 +29,7 @@ public class Enrollment {
     private ProgressStatus status;
 
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "enrollment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<EnrollmentChapter> enrollmentChapters;
 }

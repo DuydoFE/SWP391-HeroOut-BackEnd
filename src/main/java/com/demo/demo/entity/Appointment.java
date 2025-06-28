@@ -32,7 +32,9 @@ public class Appointment {
     @ManyToOne
     @JoinColumn(name = "account_id")
     Account account;
+    private String meetingLink;
 
+    private boolean checkedIn = false;
     @ManyToOne
     @JoinColumn(name = "schedule_id")
     @JsonIgnore

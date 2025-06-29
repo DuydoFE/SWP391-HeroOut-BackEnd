@@ -1,6 +1,5 @@
 package com.demo.demo.api;
 
-
 import com.demo.demo.dto.AppointmentRequest;
 import com.demo.demo.dto.AppointmentResponse;
 import com.demo.demo.dto.CheckInResponse;
@@ -31,18 +30,26 @@ public class AppointmentAPI {
     public CheckInResponse checkIn(@PathVariable Long id) {
         return appointmentService.checkInAppointment(id);
     }
-    // Phương thức API để lấy Appointment theo ID
+
+
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable("id") Long appointmentId) {
         AppointmentResponse appointmentResponse = appointmentService.getAppointmentById(appointmentId);
         return ResponseEntity.ok(appointmentResponse);
     }
 
-    // --- Phương thức API mới để lấy TẤT CẢ Appointment ---
+
     @GetMapping // Maps to /api/appointment (GET)
     public ResponseEntity<List<AppointmentResponse>> getAllAppointments() {
         List<AppointmentResponse> appointmentResponses = appointmentService.getAllAppointments();
         return ResponseEntity.ok(appointmentResponses);
     }
-    // ---------------------------------------------------
+
+
+    @GetMapping("/account/{accountId}") // Endpoint: GET /api/appointment/account/{accountId}
+    public ResponseEntity<List<AppointmentResponse>> getAppointmentsByAccountId(@PathVariable Long accountId) {
+        List<AppointmentResponse> appointmentResponses = appointmentService.getAppointmentsByAccountId(accountId);
+        return ResponseEntity.ok(appointmentResponses);
+    }
+
 }

@@ -2,10 +2,13 @@ package com.demo.demo.service;
 
 import com.demo.demo.dto.ChapterRequest;
 import com.demo.demo.dto.ChapterResponse;
+import com.demo.demo.dto.ChapterResponseStatus;
 import com.demo.demo.entity.Chapter;
 import com.demo.demo.entity.Course;
+import com.demo.demo.enums.ProgressStatus;
 import com.demo.demo.repository.ChapterRepository;
 import com.demo.demo.repository.CourseRepository;
+import com.demo.demo.repository.EnrollmentChapterRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,9 @@ public class ChapterService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private EnrollmentChapterRepository enrollmentChapterRepository;
 
     public ChapterResponse updateChapter(Long id, ChapterRequest request, Long courseId) {
         Chapter chapter = chapterRepository.findById(id)
@@ -53,10 +59,19 @@ public class ChapterService {
                 .collect(Collectors.toList());
     }
 
-    public List<ChapterResponse> getChaptersByCourseId(Long courseId) {
-        return chapterRepository.findByCourseId(courseId).stream()
-                .map(chapter -> modelMapper.map(chapter, ChapterResponse.class))
-                .collect(Collectors.toList());
+    public List<ChapterResponseStatus> getChaptersByCourseId(Long courseId, Long accountId) {
+        return chapterRepository.findByCourseId(courseId).stream().map(chapter -> {
+            ChapterResponseStatus response = modelMapper.map(chapter, ChapterResponseStatus.class);
+            // Lấy status của chương cho account này
+            response.setStatus(
+                    enrollmentChapterRepository.findByChapter_IdAndAccount_Id(chapter.getId(), accountId)
+                            .stream()
+                            .findFirst()
+                            .map(ec -> ec.getStatus())
+                            .orElse(null)
+            );
+            return response;
+        }).collect(Collectors.toList());
     }
 
     public void deleteChapter(Long id) {

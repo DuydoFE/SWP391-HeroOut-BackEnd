@@ -2,6 +2,7 @@ package com.demo.demo.api;
 
 import com.demo.demo.dto.ChapterRequest;
 import com.demo.demo.dto.ChapterResponse;
+import com.demo.demo.dto.ChapterResponseStatus;
 import com.demo.demo.service.ChapterService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +36,8 @@ public class ChapterAPI {
     }
 
     @GetMapping("/course/{courseId}")
-    public List<ChapterResponse> getChaptersByCourseId(@PathVariable Long courseId) {
-        return chapterService.getChaptersByCourseId(courseId);
+    public List<ChapterResponseStatus> getChaptersByCourseId(@PathVariable Long courseId, @RequestParam Long accountId) {
+        return chapterService.getChaptersByCourseId(courseId, accountId);
     }
 
     @DeleteMapping("/{id}")

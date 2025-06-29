@@ -9,6 +9,7 @@ import com.demo.demo.enums.ProgressStatus;
 import com.demo.demo.repository.ChapterRepository;
 import com.demo.demo.repository.CourseRepository;
 import com.demo.demo.repository.EnrollmentChapterRepository;
+import com.demo.demo.exception.exceptions.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,7 @@ public class ChapterService {
     }
 
     public List<ChapterResponseStatus> getChaptersByCourseId(Long courseId, Long accountId) {
-        return chapterRepository.findByCourseId(courseId).stream().map(chapter -> {
+        List<ChapterResponseStatus> result = chapterRepository.findByCourseId(courseId).stream().map(chapter -> {
             ChapterResponseStatus response = modelMapper.map(chapter, ChapterResponseStatus.class);
             // Lấy status của chương cho account này
             response.setStatus(
@@ -72,6 +73,17 @@ public class ChapterService {
             );
             return response;
         }).collect(Collectors.toList());
+        boolean allNull = result.stream().allMatch(r -> r.getStatus() == null);
+        if (allNull) {
+            throw new BadRequestException("User has not enrolled in this course.");
+        }
+        return result;
+    }
+
+    public List<ChapterResponse> getChaptersByCourseIdWithoutAccount(Long courseId) {
+        return chapterRepository.findByCourseId(courseId).stream()
+                .map(chapter -> modelMapper.map(chapter, ChapterResponse.class))
+                .collect(Collectors.toList());
     }
 
     public void deleteChapter(Long id) {

@@ -36,7 +36,12 @@ public class ChapterAPI {
     }
 
     @GetMapping("/course/{courseId}")
-    public List<ChapterResponseStatus> getChaptersByCourseId(@PathVariable Long courseId, @RequestParam Long accountId) {
+    public List<ChapterResponse> getChaptersByCourseId(@PathVariable Long courseId) {
+        return chapterService.getChaptersByCourseIdWithoutAccount(courseId);
+    }
+
+    @GetMapping("/course/{courseId}/account/{accountId}")
+    public List<ChapterResponseStatus> getChaptersByCourseIdAndAccountId(@PathVariable Long courseId, @PathVariable Long accountId) {
         return chapterService.getChaptersByCourseId(courseId, accountId);
     }
 

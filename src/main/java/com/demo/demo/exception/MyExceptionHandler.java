@@ -1,6 +1,7 @@
 package com.demo.demo.exception;
 
 import com.demo.demo.exception.exceptions.AuthenticationException;
+import com.demo.demo.exception.exceptions.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -30,6 +31,11 @@ public class MyExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity handleAuthenticationException(AuthenticationException exception){
         return new ResponseEntity(exception.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity handleBadRequestException(BadRequestException exception){
+        return new ResponseEntity(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
 

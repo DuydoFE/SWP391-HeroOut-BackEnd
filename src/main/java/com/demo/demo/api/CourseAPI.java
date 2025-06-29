@@ -50,6 +50,11 @@ public class CourseAPI {
         return courseService.getCoursesByStatusAndAccount(accountId, ProgressStatus.INPROGRESS);
     }
 
+    @GetMapping("/completed")
+    public List<InProgressCourseResponse> getCompletedCourses(@RequestParam Long accountId) {
+        return courseService.getCoursesByStatusAndAccount(accountId, ProgressStatus.COMPLETED);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);

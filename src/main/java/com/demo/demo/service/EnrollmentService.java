@@ -4,6 +4,7 @@ import com.demo.demo.dto.CourseEnrollmentResponse;
 import com.demo.demo.entity.*;
 import com.demo.demo.enums.ProgressStatus;
 import com.demo.demo.repository.*;
+import com.demo.demo.exception.exceptions.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class EnrollmentService {
     public CourseEnrollmentResponse enrollToCourse(Long courseId, Long accountId) {
         Optional<Enrollment> existingOpt = enrollmentRepository.findByCourse_IdAndAccount_Id(courseId, accountId);
         if (existingOpt.isPresent()) {
-            return modelMapper.map(existingOpt.get(), CourseEnrollmentResponse.class);
+            throw new BadRequestException("You have already enrolled in this course.");
         }
 
         Course course = courseRepository.findById(courseId)
@@ -97,6 +98,10 @@ public class EnrollmentService {
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("EnrollmentChapter not found"));
+
+        if (ec.getStatus() == ProgressStatus.COMPLETED) {
+            throw new BadRequestException("This chapter has already been completed.");
+        }
 
         ec.setStatus(ProgressStatus.COMPLETED);
         enrollmentChapterRepository.save(ec);

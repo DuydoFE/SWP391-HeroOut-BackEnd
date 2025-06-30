@@ -17,10 +17,8 @@ public class AppointmentResponse {
     private Long consultantId;
     private String meetingLink;
     private boolean checkedIn;
-
-
-
     private LocalDate appointmentDate;
 
+    private Long scheduleId;
 
 }

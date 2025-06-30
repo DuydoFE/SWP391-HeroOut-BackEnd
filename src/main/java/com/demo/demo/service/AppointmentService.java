@@ -223,32 +223,32 @@ public class AppointmentService {
         response.setCreateAt(appointment.getCreateAt());
         response.setDescription(appointment.getDescription());
         response.setStatus(appointment.getStatus());
+        response.setMeetingLink(appointment.getMeetingLink());
+        response.setCheckedIn(appointment.isCheckedIn());
 
+        // Lấy thông tin từ Account liên quan
         if (appointment.getAccount() != null) {
             response.setAccountId(appointment.getAccount().getId());
-            // response.setAccountName(appointment.getAccount().getName()); // Optional: Add account name to DTO if available
         }
 
-        // Lấy consultantId từ schedule
-        if (appointment.getSchedule() != null && appointment.getSchedule().getConsultant() != null) {
-            response.setConsultantId(appointment.getSchedule().getConsultant().getId());
-            // Optional: Add consultant name to DTO if available
-            // if(appointment.getSchedule().getConsultant().getAccount() != null) {
-            //    response.setConsultantName(appointment.getSchedule().getConsultant().getAccount().getName());
-            // }
-        } else {
-            response.setConsultantId(null); // Hoặc giá trị mặc định khác nếu cần
-        }
-
-        response.setMeetingLink(appointment.getMeetingLink()); // Add meeting link to DTO
-        response.setCheckedIn(appointment.isCheckedIn()); // Add checked-in status to DTO
-        // You might also want to add schedule details like date, start/end time to the DTO
+        // Lấy thông tin từ Schedule liên quan
         if (appointment.getSchedule() != null) {
             response.setAppointmentDate(appointment.getSchedule().getDate());
-            // response.setStartTime(appointment.getSchedule().getStartTime()); // Assuming Schedule has startTime
-            // response.setEndTime(appointment.getSchedule().getEndTime()); // Assuming Schedule has endTime
-        }
 
+            // Lấy scheduleId
+            response.setScheduleId(appointment.getSchedule().getId()); // <--- THÊM DÒNG NÀY
+
+            // Lấy consultantId từ schedule
+            if (appointment.getSchedule().getConsultant() != null) {
+                response.setConsultantId(appointment.getSchedule().getConsultant().getId());
+            } else {
+                response.setConsultantId(null);
+            }
+        } else {
+            // Đặt giá trị mặc định nếu không có schedule
+            response.setConsultantId(null);
+            response.setScheduleId(null);
+        }
 
         return response;
     }

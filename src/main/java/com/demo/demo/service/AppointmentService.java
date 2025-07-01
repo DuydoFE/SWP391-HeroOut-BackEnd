@@ -107,12 +107,12 @@ public class AppointmentService {
         slot.setBooked(false); // Mark the schedule slot as unavailable (assuming false means booked)
         scheduleRepository.save(slot); // Save the updated schedule slot
 
-        // Optional: Trigger email/notifications etc. after saving
 
-        return savedAppointment; // Return the created appointment entity
+
+        return savedAppointment;
     }
 
-    // --- Các phương thức khác giữ nguyên ---
+
 
     public CheckInResponse checkInAppointment(Long appointmentId) {
         // Logic giữ nguyên
@@ -129,7 +129,7 @@ public class AppointmentService {
                 throw new IllegalStateException("Consultant account not found for this schedule associated with the appointment");
             }
 
-            Account consultantAccount = consultant.getAccount(); // Lấy account của consultant
+            Account consultantAccount = consultant.getAccount();
 
             // Tạo link cuộc họp
             String meetingLink = jitsiService.createMeetingRoom("appointment-" + appointmentId);
@@ -144,14 +144,13 @@ public class AppointmentService {
                 }
             } catch (Exception e) {
                 System.err.println("Failed to send meeting link email for appointment ID " + appointmentId + ": " + e.getMessage());
-                // Tùy chọn: ném ngoại lệ hoặc chỉ ghi log tùy thuộc vào yêu cầu
+
             }
 
-            // Cập nhật Appointment trong DB
+
             appointment.setMeetingLink(meetingLink);
             appointment.setCheckedIn(true);
-            // Tùy chọn: Cập nhật status sang IN_PROGRESS
-            // appointment.setStatus(AppointmentStatus.IN_PROGRESS);
+
             appointmentRepository.save(appointment);
 
             // Trả về DTO response
@@ -196,6 +195,26 @@ public class AppointmentService {
                 .map(this::mapToAppointmentResponse)
                 .collect(Collectors.toList());
     }
+
+
+    @Transactional
+    public void updateAppointmentStatus(Long appointmentId, AppointmentStatus newStatus) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id " + appointmentId));
+
+        appointment.setStatus(newStatus);
+        appointmentRepository.save(appointment);
+
+
+        if (newStatus == AppointmentStatus.CANCELLED) {
+            Schedule schedule = appointment.getSchedule();
+            if (schedule != null) {
+                schedule.setBooked(true);
+                scheduleRepository.save(schedule);
+            }
+        }
+    }
+
 
 
     private AppointmentResponse mapToAppointmentResponse(Appointment appointment) {

@@ -28,9 +28,11 @@ public class AccountService {
         account.setAddress(request.getAddress());
         account.setAvatar(request.getAvatar());
         account.setDateOfBirth(request.getDateOfBirth());
+        account.setGender(request.getGender()); // Added setter for gender
 
         return accountRepository.save(account);
     }
+
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }

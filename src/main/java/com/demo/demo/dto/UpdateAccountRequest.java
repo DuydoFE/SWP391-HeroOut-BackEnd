@@ -1,5 +1,6 @@
 package com.demo.demo.dto;
 
+import com.demo.demo.enums.Gender;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,4 +14,5 @@ public class UpdateAccountRequest {
     private String address;
     private String avatar;
     private Date dateOfBirth;
+    private Gender gender;
 }

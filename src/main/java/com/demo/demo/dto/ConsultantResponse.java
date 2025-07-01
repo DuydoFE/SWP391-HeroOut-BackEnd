@@ -4,9 +4,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
-@Data
+@Data // Lombok sẽ tạo getters, setters, toString, v.v.
 public class ConsultantResponse {
-    private long id;
+    private long id; // ID của Consultant entity
     private String fieldOfStudy;
     private String degreeLevel;
     private LocalDate issuedDate;
@@ -17,5 +17,9 @@ public class ConsultantResponse {
     private float rating;
     private int consultations;
     private String bio;
-    private long accountId;
+    private Long accountId;
+
+
+    private String consultantName;
+
 }

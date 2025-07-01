@@ -14,7 +14,13 @@ public class AppointmentResponse {
     private AppointmentStatus status;
 
     private Long accountId;
+    private String accountName;
+
+
     private Long consultantId;
+    private String consultantName;
+
+
     private String meetingLink;
     private boolean checkedIn;
     private LocalDate appointmentDate;

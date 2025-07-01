@@ -1,50 +1,57 @@
 package com.demo.demo.api;
 
-import com.demo.demo.entity.Consultant;
-import com.demo.demo.repository.ConsultantRepository;
+// Thay thế import Entity Consultant bằng import DTO ConsultantResponse
+// import com.demo.demo.entity.Consultant;
+
+import com.demo.demo.dto.ConsultantResponse; // Import ConsultantResponse DTO
+import com.demo.demo.service.ConsultantService; // Import ConsultantService
+import com.demo.demo.exception.exceptions.ResourceNotFoundException; // Import ResourceNotFoundException để xử lý 404
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus; // Import HttpStatus
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-
+// import java.util.Optional; // Không cần Optional khi Service ném Exception
+import java.util.Arrays; // Keep if used elsewhere
 
 @RestController
 @SecurityRequirement(name = "api")
-
 @RequestMapping("/api/consultants")
 public class ConsultantAPI {
 
-    // Inject (tiêm) ConsultantRepository để có thể truy cập dữ liệu
-    private final ConsultantRepository consultantRepository;
 
-    // Sử dụng constructor injection (hoặc @Autowired trên trường) để tiêm repository
+    private final ConsultantService consultantService; // Inject ConsultantService
+
+
     @Autowired
-    public ConsultantAPI(ConsultantRepository consultantRepository) {
-        this.consultantRepository = consultantRepository;
+    public ConsultantAPI(ConsultantService consultantService) {
+        this.consultantService = consultantService;
     }
 
 
-    @GetMapping
-    public List<Consultant> getAllConsultants() {
+    @GetMapping // Maps to /api/consultants (GET)
 
-        return consultantRepository.findAll();
+    public ResponseEntity<List<ConsultantResponse>> getAllConsultants() {
+        List<ConsultantResponse> consultantResponses = consultantService.getAllConsultants(); // Gọi Service
+        return ResponseEntity.ok(consultantResponses); // Trả về danh sách DTO
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Consultant> getConsultantById(@PathVariable Long id) {
+    @GetMapping("/{id}") // Maps to /api/consultants/{id} (GET)
 
-        Optional<Consultant> consultant = consultantRepository.findById(id);
+    public ResponseEntity<ConsultantResponse> getConsultantById(@PathVariable Long id) {
+        try {
+            ConsultantResponse consultantResponse = consultantService.getConsultantById(id); // Gọi Service
+            return ResponseEntity.ok(consultantResponse); // Trả về DTO nếu tìm thấy
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Trả về 404 nếu không tìm thấy
 
+        } catch (Exception e) {
 
-        if (consultant.isPresent()) {
-
-            return ResponseEntity.ok(consultant.get());
-        } else {
-
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+
     }
+
 }

@@ -29,6 +29,9 @@ public class EnrollmentChapterService {
     public EnrollmentChapter create(Long enrollmentId, Long chapterId, EnrollmentChapter entity) {
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId).orElseThrow();
         Chapter chapter = chapterRepository.findById(chapterId).orElseThrow();
+        if (chapter.getCourse() == null || chapter.getCourse().getStatus() != com.demo.demo.enums.CourseStatus.ACTIVE) {
+            throw new RuntimeException("You can only enroll in chapters of courses that are ACTIVE.");
+        }
         entity.setEnrollment(enrollment);
         entity.setChapter(chapter);
         return repository.save(entity);

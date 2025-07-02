@@ -4,7 +4,6 @@ import com.demo.demo.dto.CourseRequest;
 import com.demo.demo.dto.CourseResponse;
 import com.demo.demo.dto.CourseCreateResponse;
 import com.demo.demo.dto.InProgressCourseResponse;
-import com.demo.demo.dto.CourseResponseStatus;
 import com.demo.demo.enums.ProgressStatus;
 import com.demo.demo.enums.CourseStatus;
 import com.demo.demo.service.CourseService;
@@ -58,25 +57,21 @@ public class CourseAPI {
         return courseService.getCoursesByStatusAndAccount(accountId, ProgressStatus.COMPLETED);
     }
 
+
     @DeleteMapping("/{id}")
     public void deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
     }
 
-    @GetMapping("/with-status")
-    public List<CourseResponseStatus> getAllCoursesWithStatus() {
-        return courseService.getAllCoursesWithStatus();
-    }
-
-    @PutMapping("/{id}/activate")
-    public ResponseEntity<CourseResponseStatus> activateCourse(@PathVariable Long id) {
-        CourseResponseStatus response = courseService.updateCourseStatus(id, CourseStatus.ACTIVE);
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{id}/inactivate")
-    public ResponseEntity<CourseResponseStatus> deactivateCourse(@PathVariable Long id) {
-        CourseResponseStatus response = courseService.updateCourseStatus(id, CourseStatus.INACTIVE);
-        return ResponseEntity.ok(response);
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateCourseStatus(@PathVariable Long id, @RequestParam("status") String status) {
+        try {
+            courseService.updateCourseStatus(id, CourseStatus.valueOf(status.toUpperCase()));
+            return ResponseEntity.ok("Cập nhật trạng thái thành công");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Trạng thái không hợp lệ");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

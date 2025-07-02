@@ -4,11 +4,14 @@ import com.demo.demo.dto.*;
 import com.demo.demo.entity.Course;
 import com.demo.demo.entity.Enrollment;
 import com.demo.demo.entity.Chapter;
+import com.demo.demo.entity.Account;
+import com.demo.demo.enums.AgeGroup;
 import com.demo.demo.enums.ProgressStatus;
 import com.demo.demo.enums.CourseStatus;
 import com.demo.demo.repository.CourseRepository;
 import com.demo.demo.repository.EnrollmentRepository;
 import com.demo.demo.repository.ChapterRepository;
+import com.demo.demo.repository.AccountRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,9 @@ public class CourseService {
 
     @Autowired
     private ChapterRepository chapterRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -94,12 +100,15 @@ public class CourseService {
         return mapCourseWithTotal(courseRepository.save(course));
     }
 
-    public CourseResponseStatus updateCourseStatus(Long id, CourseStatus status) {
+    public CourseResponse updateCourseStatus(Long id, CourseStatus status) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
+        if (course.getStatus() == status) {
+            throw new RuntimeException("Course is already in status: " + status);
+        }
         course.setStatus(status);
         Course updated = courseRepository.save(course);
-        CourseResponseStatus response = modelMapper.map(updated, CourseResponseStatus.class);
+        CourseResponse response = modelMapper.map(updated, CourseResponse.class);
         long total = updated.getEnrollments() == null ? 0 : updated.getEnrollments().stream()
                 .filter(e -> e.getAccount() != null)
                 .count();
@@ -107,9 +116,9 @@ public class CourseService {
         return response;
     }
 
-    public List<CourseResponseStatus> getAllCoursesWithStatus() {
+    public List<CourseResponse> getAllCoursesWithStatus() {
         return courseRepository.findAll().stream().map(course -> {
-            CourseResponseStatus response = modelMapper.map(course, CourseResponseStatus.class);
+            CourseResponse response = modelMapper.map(course, CourseResponse.class);
             long total = course.getEnrollments() == null ? 0 : course.getEnrollments().stream()
                     .filter(e -> e.getAccount() != null)
                     .count();
@@ -126,7 +135,6 @@ public class CourseService {
 
     public List<CourseResponse> getAllCourses() {
         return courseRepository.findAll().stream()
-                .filter(course -> course.getStatus() == CourseStatus.ACTIVE)
                 .map(this::mapCourseWithTotal)
                 .collect(Collectors.toList());
     }
@@ -137,7 +145,9 @@ public class CourseService {
     }
 
     public List<InProgressCourseResponse> getCoursesByStatusAndAccount(Long accountId, ProgressStatus status) {
-        List<Course> courses = courseRepository.findCoursesByAccountIdAndStatus(accountId, status);
+        List<Course> courses = courseRepository.findCoursesByAccountIdAndStatus(accountId, status)
+                .stream().filter(course -> course.getStatus() == CourseStatus.ACTIVE)
+                .collect(Collectors.toList());
 
         return courses.stream().map(course -> {
             InProgressCourseResponse response = modelMapper.map(course, InProgressCourseResponse.class);
@@ -168,10 +178,24 @@ public class CourseService {
 
 
     public List<CourseResponse> getCoursesNotStartedByAccount(Long accountId) {
-        List<Course> courses = courseRepository.findCoursesNotEnrolledByAccount(accountId);
-        return courses.stream()
-                .map(this::mapCourseWithTotal)
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        java.util.Date dob = account.getDateOfBirth();
+        if (dob == null) {
+            throw new com.demo.demo.exception.exceptions.BadRequestException("Account does not have date of birth information.");
+        }
+        java.time.LocalDate localDob;
+        if (dob instanceof java.sql.Date) {
+            localDob = ((java.sql.Date) dob).toLocalDate();
+        } else {
+            localDob = dob.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        }
+        com.demo.demo.enums.AgeGroup userAgeGroup = AccountService.getAgeGroup(localDob);
+        List<Course> courses = courseRepository.findCoursesNotEnrolledByAccount(accountId)
+                .stream().filter(course -> course.getStatus() == CourseStatus.ACTIVE)
+                .filter(course -> course.getAgeGroup() != null && course.getAgeGroup().ordinal() <= userAgeGroup.ordinal())
                 .collect(Collectors.toList());
+        return courses.stream().map(this::mapCourseWithTotal).collect(Collectors.toList());
     }
 
     public long countEnrollmentsByCourseId(Long courseId) {

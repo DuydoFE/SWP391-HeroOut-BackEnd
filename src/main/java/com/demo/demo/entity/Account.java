@@ -53,9 +53,11 @@ public class Account implements UserDetails {
     List<Appointment> appointments;
 
     @OneToMany(mappedBy = "account")
+    @JsonIgnore
     private List<EventParticipation> eventParticipations;
 
     @OneToMany(mappedBy = "account")
+    @JsonIgnore
     private List<SurveyResult> surveyResults;
 
     @Override

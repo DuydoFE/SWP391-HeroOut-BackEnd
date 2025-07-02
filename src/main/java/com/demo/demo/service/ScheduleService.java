@@ -1,6 +1,6 @@
-// src/main/java/com/demo/demo/service/ScheduleService.java
 package com.demo.demo.service;
 
+import com.demo.demo.entity.Consultant; // Import Consultant entity
 import com.demo.demo.entity.Schedule;
 import com.demo.demo.entity.Slot;
 import com.demo.demo.repository.ScheduleRepository;
@@ -42,14 +42,23 @@ public class ScheduleService {
         // Chuyển đổi giá trị boolean isBooked sang int 0 hoặc 1
         int bookedStatusInt = schedule.isBooked() ? 1 : 0; // <-- Logic chuyển đổi
 
-        // Tạo ScheduleResponseDto với giá trị int mới
+        // Lấy consultantId từ entity Schedule
+        Long currentConsultantId = null; // Sử dụng Long để có thể là null nếu cần
+        Consultant consultant = schedule.getConsultant();
+        if (consultant != null) {
+            currentConsultantId = consultant.getId();
+        }
+
+
+        // Tạo ScheduleResponseDto với giá trị int và consultantId mới
         return new ScheduleResponseDto(
                 schedule.getId(),
                 schedule.getDate(),
                 schedule.getRecurrence(),
                 bookedStatusInt, // <-- Sử dụng giá trị int đã chuyển đổi
                 currentSlotId,
-                slotDto
+                slotDto,
+                currentConsultantId // <-- Thêm consultantId vào đây
         );
     }
 

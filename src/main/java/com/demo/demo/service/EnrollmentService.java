@@ -43,6 +43,9 @@ public class EnrollmentService {
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
+        if (course.getStatus() != com.demo.demo.enums.CourseStatus.ACTIVE) {
+            throw new BadRequestException("You can only enroll in courses that are ACTIVE.");
+        }
 
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));

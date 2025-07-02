@@ -1,14 +1,11 @@
 package com.demo.demo.service;
 
-import com.demo.demo.dto.CourseRequest;
-import com.demo.demo.dto.CourseResponse;
-import com.demo.demo.dto.CourseCreateResponse;
-import com.demo.demo.dto.ChapterResponse;
-import com.demo.demo.dto.InProgressCourseResponse;
+import com.demo.demo.dto.*;
 import com.demo.demo.entity.Course;
 import com.demo.demo.entity.Enrollment;
 import com.demo.demo.entity.Chapter;
 import com.demo.demo.enums.ProgressStatus;
+import com.demo.demo.enums.CourseStatus;
 import com.demo.demo.repository.CourseRepository;
 import com.demo.demo.repository.EnrollmentRepository;
 import com.demo.demo.repository.ChapterRepository;
@@ -97,6 +94,30 @@ public class CourseService {
         return mapCourseWithTotal(courseRepository.save(course));
     }
 
+    public CourseResponseStatus updateCourseStatus(Long id, CourseStatus status) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        course.setStatus(status);
+        Course updated = courseRepository.save(course);
+        CourseResponseStatus response = modelMapper.map(updated, CourseResponseStatus.class);
+        long total = updated.getEnrollments() == null ? 0 : updated.getEnrollments().stream()
+                .filter(e -> e.getAccount() != null)
+                .count();
+        response.setTotalEnrollment(total);
+        return response;
+    }
+
+    public List<CourseResponseStatus> getAllCoursesWithStatus() {
+        return courseRepository.findAll().stream().map(course -> {
+            CourseResponseStatus response = modelMapper.map(course, CourseResponseStatus.class);
+            long total = course.getEnrollments() == null ? 0 : course.getEnrollments().stream()
+                    .filter(e -> e.getAccount() != null)
+                    .count();
+            response.setTotalEnrollment(total);
+            return response;
+        }).collect(Collectors.toList());
+    }
+
     public CourseResponse getCourseById(Long id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
@@ -105,9 +126,11 @@ public class CourseService {
 
     public List<CourseResponse> getAllCourses() {
         return courseRepository.findAll().stream()
+                .filter(course -> course.getStatus() == CourseStatus.ACTIVE)
                 .map(this::mapCourseWithTotal)
                 .collect(Collectors.toList());
     }
+
 
     public void deleteCourse(Long id) {
         courseRepository.deleteById(id);

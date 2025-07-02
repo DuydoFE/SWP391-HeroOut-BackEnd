@@ -1,6 +1,8 @@
 package com.demo.demo.entity;
 
+import com.demo.demo.enums.AccountStatus;
 import com.demo.demo.enums.AgeGroup;
+import com.demo.demo.enums.CourseStatus;
 import com.demo.demo.enums.ProgressStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,6 +24,10 @@ public class Course {
     private String description;
     private String objectives;
     private String overview;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CourseStatus status = CourseStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "age_group")

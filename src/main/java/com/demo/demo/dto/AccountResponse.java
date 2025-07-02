@@ -15,7 +15,7 @@ public class AccountResponse {
     public String name;
     public Gender gender;
     public Role role;
-    public AccountStatus status; // Thêm trường status này
+    public AccountStatus status;
     public String token;
 
 }

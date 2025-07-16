@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -40,4 +41,14 @@ public class EventParticipation {
     @Enumerated(EnumType.STRING)
     private EventParticipationStatus status;
 
+    @OneToMany(mappedBy = "participation", cascade = CascadeType.ALL)
+    private List<EventSurveyResponse> responses;
+
+    private Integer totalScore;
+
+
+    public EventParticipation(Event event, Account account) {
+        this.event = event;
+        this.account = account;
+    }
 }

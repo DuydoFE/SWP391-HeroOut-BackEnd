@@ -4,8 +4,10 @@ import com.demo.demo.dto.EventRequest;
 import com.demo.demo.entity.Event;
 import com.demo.demo.service.EventService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,9 +22,12 @@ public class EventAPI {
 
     // CREATE
     @PostMapping
-    public Event createEvent(@RequestBody EventRequest request) {
-        return eventService.createEvent(request);
+    public ResponseEntity<?> createEvent(@Valid @RequestBody EventRequest request) {
+        Event event = eventService.createEvent(request);
+        return ResponseEntity.ok(event);
     }
+
+
 
     // READ ALL
     @GetMapping
@@ -41,10 +46,14 @@ public class EventAPI {
 
     // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<Event> updateEvent(@PathVariable Long id, @RequestBody Event updatedEvent) {
-        Event event = eventService.updateEvent(id, updatedEvent);
-        return ResponseEntity.ok(event);
+    public ResponseEntity<?> updateEvent(
+            @PathVariable Long id,
+            @Valid @RequestBody EventRequest request
+    ) {
+        Event updatedEvent = eventService.updateEvent(id, request);
+        return ResponseEntity.ok(updatedEvent);
     }
+
 
     // DELETE BY ID
     @DeleteMapping("/{id}")

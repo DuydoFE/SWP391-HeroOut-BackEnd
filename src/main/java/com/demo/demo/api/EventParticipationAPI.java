@@ -6,6 +6,7 @@ import com.demo.demo.entity.EventParticipation;
 import com.demo.demo.enums.EventParticipationStatus;
 import com.demo.demo.service.EventParticipationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,14 +34,14 @@ public class EventParticipationAPI {
     }
 
     @PostMapping
-    public ResponseEntity<EventParticipation> create(@RequestBody EventParticipationRequest request) {
+    public ResponseEntity<EventParticipation> create(@Valid @RequestBody EventParticipationRequest request) {
         EventParticipation created = eventParticipationService.createParticipation(request);
         return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EventParticipation> update(@PathVariable Long id,
-                                                     @RequestBody EventParticipationRequest request) {
+                                                     @Valid @RequestBody EventParticipationRequest request) {
         EventParticipation updated = eventParticipationService.updateParticipation(id, request);
         return ResponseEntity.ok(updated);
     }

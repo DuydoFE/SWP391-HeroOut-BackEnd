@@ -2,6 +2,7 @@ package com.demo.demo.api;
 
 import com.demo.demo.dto.EventSurveyOptionDTO;
 import com.demo.demo.service.EventSurveyOptionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +17,12 @@ public class EventSurveyOptionAPI {
     private final EventSurveyOptionService optionService;
 
     @PostMapping
-    public ResponseEntity<EventSurveyOptionDTO> create(@RequestBody EventSurveyOptionDTO dto) {
+    public ResponseEntity<EventSurveyOptionDTO> create(@Valid @RequestBody EventSurveyOptionDTO dto) {
         return ResponseEntity.ok(optionService.createOption(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventSurveyOptionDTO> update(@PathVariable Long id, @RequestBody EventSurveyOptionDTO dto) {
+    public ResponseEntity<EventSurveyOptionDTO> update(@Valid @PathVariable Long id, @RequestBody EventSurveyOptionDTO dto) {
         return ResponseEntity.ok(optionService.updateOption(id, dto));
     }
 

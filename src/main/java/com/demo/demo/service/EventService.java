@@ -54,20 +54,21 @@ public class EventService {
         eventRepository.delete(event);
     }
 
-    public Event updateEvent(Long id, Event updatedEvent) {
+    public Event updateEvent(Long id, EventRequest request) {
         Event existingEvent = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
 
-        // Cập nhật các trường (bạn cần chỉnh theo entity thật của bạn)
-        existingEvent.setTitle(updatedEvent.getTitle());
-        existingEvent.setLocation(updatedEvent.getLocation());
-        existingEvent.setStartTime(updatedEvent.getStartTime());
-        existingEvent.setEndTime(updatedEvent.getEndTime());
-        existingEvent.setDescription(updatedEvent.getDescription());
-        validateEventTime(existingEvent.getStartTime(), existingEvent.getEndTime());
+        validateEventTime(request.getStartTime(), request.getEndTime());
+
+        existingEvent.setTitle(request.getTitle());
+        existingEvent.setLocation(request.getLocation());
+        existingEvent.setStartTime(request.getStartTime());
+        existingEvent.setEndTime(request.getEndTime());
+        existingEvent.setDescription(request.getDescription());
 
         return eventRepository.save(existingEvent);
     }
+
 
     public void removeEventById(Long id) {
         if (!eventRepository.existsById(id)) {

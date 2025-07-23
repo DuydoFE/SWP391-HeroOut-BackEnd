@@ -2,6 +2,7 @@ package com.demo.demo.api;
 
 import com.demo.demo.dto.EventSurveySubmissionDTO;
 import com.demo.demo.service.EventSurveyResponseService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/survey-responses")
+@SecurityRequirement(name = "api")
 @RequiredArgsConstructor
 public class EventSurveyResponseAPI {
 

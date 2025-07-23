@@ -15,6 +15,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class SurveyResult {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // <-- THÊM DÒNG NÀY
     private long id;
 
     @ManyToOne
@@ -25,6 +26,4 @@ public class SurveyResult {
     private String riskLevel;
     private String recommendation;
     private LocalTime takenAt;
-
-
 }

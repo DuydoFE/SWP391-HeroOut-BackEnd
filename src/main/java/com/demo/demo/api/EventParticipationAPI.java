@@ -2,6 +2,7 @@ package com.demo.demo.api;
 
 import com.demo.demo.dto.EventParticipationRequest;
 import com.demo.demo.dto.EventParticipationResponse;
+import com.demo.demo.dto.EventSurveySubmissionDTO;
 import com.demo.demo.entity.EventParticipation;
 import com.demo.demo.enums.EventParticipationStatus;
 import com.demo.demo.service.EventParticipationService;
@@ -92,4 +93,8 @@ public class EventParticipationAPI {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/results/{eventId}")
+    public ResponseEntity<List<EventSurveySubmissionDTO>> getAllResults(@PathVariable Long eventId) {
+        return ResponseEntity.ok(eventParticipationService.getAllSurveyResultsByEvent(eventId));
+    }
 }

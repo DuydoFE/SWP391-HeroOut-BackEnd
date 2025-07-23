@@ -9,7 +9,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class EventSurveyDTO {
+public class    EventSurveyDTO {
     @NotNull(message = "Event ID is required")
     private Long eventId;
 

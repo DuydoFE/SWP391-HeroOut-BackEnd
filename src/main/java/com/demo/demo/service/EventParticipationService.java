@@ -2,11 +2,15 @@ package com.demo.demo.service;
 
 import com.demo.demo.dto.EventParticipationRequest;
 import com.demo.demo.dto.EventParticipationResponse;
+import com.demo.demo.dto.EventSurveyAnswerDTO;
+import com.demo.demo.dto.EventSurveySubmissionDTO;
 import com.demo.demo.entity.EventParticipation;
+import com.demo.demo.entity.EventSurveyResponse;
 import com.demo.demo.enums.EventParticipationStatus;
 import com.demo.demo.repository.AuthenticationRepository;
 import com.demo.demo.repository.EventParticipationRepository;
 import com.demo.demo.repository.EventRepository;
+import com.demo.demo.repository.EventSurveyResponseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +34,32 @@ public class EventParticipationService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+
+    @Autowired
+    private  EventSurveyResponseRepository responseRepo;
+
+    public List<EventSurveySubmissionDTO> getAllSurveyResultsByEvent(Long eventId) {
+        List<EventParticipation> participations = eventParticipationRepository.findByEventId(eventId);
+
+        return participations.stream().map(participation -> {
+            List<EventSurveyResponse> responses = responseRepo.findByParticipationId(participation.getId());
+
+            List<EventSurveyAnswerDTO> answerDTOs = responses.stream().map(response -> {
+                EventSurveyAnswerDTO answerDTO = new EventSurveyAnswerDTO();
+                answerDTO.setQuestionId(response.getQuestion().getId());
+                answerDTO.setSelectedOptionId(response.getSelectedOption().getId());
+                return answerDTO;
+            }).collect(Collectors.toList());
+
+            EventSurveySubmissionDTO submissionDTO = new EventSurveySubmissionDTO();
+            submissionDTO.setEventId(eventId);
+            submissionDTO.setAccountId(participation.getAccount().getId());
+            submissionDTO.setAnswers(answerDTOs);
+
+            return submissionDTO;
+        }).collect(Collectors.toList());
+    }
 
     public EventParticipationResponse toResponse(EventParticipation participation) {
         Long accountId = participation.getAccount() != null ? participation.getAccount().getId() : null;

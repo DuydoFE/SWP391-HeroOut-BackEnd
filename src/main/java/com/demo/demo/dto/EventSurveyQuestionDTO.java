@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class EventSurveyQuestionDTO {
+public class  EventSurveyQuestionDTO {
 
     private Long id;
 

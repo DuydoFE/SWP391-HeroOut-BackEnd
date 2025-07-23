@@ -30,5 +30,4 @@ public class Blog {
     private String views;
     private LocalDate date;
     private String tags;
-
 }

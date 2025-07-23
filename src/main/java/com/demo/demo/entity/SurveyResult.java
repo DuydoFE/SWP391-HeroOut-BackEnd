@@ -26,4 +26,5 @@ public class SurveyResult {
     private String riskLevel;
     private String recommendation;
     private LocalTime takenAt;
+}
 

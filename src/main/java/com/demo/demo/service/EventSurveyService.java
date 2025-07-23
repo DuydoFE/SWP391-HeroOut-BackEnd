@@ -59,6 +59,8 @@ public class EventSurveyService {
     }
 
     public EventSurveyDTO getSurveyByEvent(Long eventId) {
+
+
         EventSurvey survey = surveyRepo.findByEventId (eventId)
                 .orElseThrow(() -> new RuntimeException("Survey not found"));
         return mapSurveyToDTO(survey);

@@ -20,24 +20,21 @@ public class ScheduleAPI {
         this.scheduleService = scheduleService;
     }
 
-    // Endpoint to get all schedules, returning DTOs
-    // GET /api/schedules
+
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> getAllSchedules() {
         List<ScheduleResponseDto> schedules = scheduleService.getAllSchedules();
         return ResponseEntity.ok(schedules);
     }
 
-    // Endpoint to get schedules by Consultant ID, returning DTOs
-    // GET /api/schedules/consultant/{consultantId}
+
     @GetMapping("/consultant/{consultantId}")
     public ResponseEntity<List<ScheduleResponseDto>> getSchedulesByConsultantId(@PathVariable long consultantId) {
         List<ScheduleResponseDto> schedules = scheduleService.getSchedulesByConsultantId(consultantId);
         return ResponseEntity.ok(schedules);
     }
 
-    // Optional: Endpoint để lấy một lịch trình cụ thể theo ID của nó, trả về DTO
-    // GET /api/schedules/{id}
+
     @GetMapping("/{id}")
     public ResponseEntity<ScheduleResponseDto> getScheduleById(@PathVariable long id) {
         ScheduleResponseDto schedule = scheduleService.getScheduleById(id);

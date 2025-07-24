@@ -46,7 +46,6 @@ public class EventParticipation {
 
     private Integer totalScore;
 
-
     public EventParticipation(Event event, Account account) {
         this.event = event;
         this.account = account;

@@ -26,10 +26,10 @@ public class EventSurveyAPI {
         return ResponseEntity.ok(surveyService.updateSurvey(eventId, dto));
     }
 
-    @GetMapping("/event/{eventId}")
+    @GetMapping("/event/{eventId}/{accountId}")
     public ResponseEntity<EventSurveyDTO> getSurvey(
-            @RequestParam Long eventId,
-            @RequestParam Long accountId) {
+            @PathVariable Long eventId,
+            @PathVariable Long accountId) {
         return ResponseEntity.ok(surveyService.getSurveyByEvent(eventId, accountId));
     }
 

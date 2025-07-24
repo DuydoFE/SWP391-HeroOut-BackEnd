@@ -27,9 +27,12 @@ public class EventSurveyAPI {
     }
 
     @GetMapping("/event/{eventId}")
-    public ResponseEntity<EventSurveyDTO> getByEvent(@PathVariable Long eventId) {
-        return ResponseEntity.ok(surveyService.getSurveyByEvent(eventId));
+    public ResponseEntity<EventSurveyDTO> getSurvey(
+            @RequestParam Long eventId,
+            @RequestParam Long accountId) {
+        return ResponseEntity.ok(surveyService.getSurveyByEvent(eventId, accountId));
     }
+
 
 
     @DeleteMapping("/event/{eventId}")

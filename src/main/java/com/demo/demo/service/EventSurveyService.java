@@ -7,10 +7,8 @@ import com.demo.demo.entity.Event;
 import com.demo.demo.entity.EventSurvey;
 import com.demo.demo.entity.EventSurveyOption;
 import com.demo.demo.entity.EventSurveyQuestion;
-import com.demo.demo.repository.EventRepository;
-import com.demo.demo.repository.EventSurveyOptionRepository;
-import com.demo.demo.repository.EventSurveyQuestionRepository;
-import com.demo.demo.repository.EventSurveyRepository;
+import com.demo.demo.enums.EventParticipationStatus;
+import com.demo.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +25,7 @@ public class EventSurveyService {
     private final EventSurveyRepository surveyRepo;
     private final EventSurveyQuestionRepository questionRepo;
     private final EventSurveyOptionRepository optionRepo;
+    private final EventParticipationRepository eventParticipationRepository;
 
     public EventSurveyDTO createSurvey(EventSurveyDTO dto) {
         Event event = eventRepo.findById(dto.getEventId())
@@ -58,11 +57,20 @@ public class EventSurveyService {
         return mapSurveyToDTO(surveyRepo.save(survey));
     }
 
-    public EventSurveyDTO getSurveyByEvent(Long eventId) {
-        EventSurvey survey = surveyRepo.findByEventId (eventId)
+    public EventSurveyDTO getSurveyByEvent(Long eventId, Long accountId) {
+        boolean isCheckedIn = eventParticipationRepository.existsByEvent_IdAndAccount_IdAndStatus(
+                eventId, accountId, EventParticipationStatus.CHECKED_IN);
+
+        if (!isCheckedIn) {
+            throw new RuntimeException("You must check-in before accessing the survey.");
+        }
+
+        EventSurvey survey = surveyRepo.findByEventId(eventId)
                 .orElseThrow(() -> new RuntimeException("Survey not found"));
+
         return mapSurveyToDTO(survey);
     }
+
 
     @Transactional
     public EventSurveyDTO updateSurvey(Long eventId, EventSurveyDTO dto) {
@@ -128,18 +136,26 @@ public class EventSurveyService {
         EventSurveyDTO dto = new EventSurveyDTO();
         dto.setEventId(survey.getEvent().getId());
         dto.setTitle(survey.getTitle());
+
         dto.setQuestions(survey.getQuestions().stream().map(q -> {
             EventSurveyQuestionDTO qDto = new EventSurveyQuestionDTO();
+            qDto.setId(q.getId());
             qDto.setQuestionText(q.getQuestionText());
+
             qDto.setOptions(q.getOptions().stream().map(o -> {
                 EventSurveyOptionDTO oDto = new EventSurveyOptionDTO();
+                oDto.setId(o.getId());
                 oDto.setContent(o.getContent());
                 oDto.setScore(o.getScore());
+                oDto.setQuestionId(q.getId());
                 return oDto;
             }).collect(Collectors.toList()));
+
             return qDto;
         }).collect(Collectors.toList()));
+
         return dto;
     }
+
 }
 

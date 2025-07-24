@@ -24,6 +24,7 @@ public class EventSurvey {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @OneToMany(mappedBy = "eventSurvey", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "eventSurvey", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventSurveyQuestion> questions;
+
 }

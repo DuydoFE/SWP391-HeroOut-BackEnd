@@ -15,5 +15,6 @@ public interface EventParticipationRepository extends JpaRepository<EventPartici
     List<EventParticipation> findAllByEventIdAndStatus(Long eventId, EventParticipationStatus status);
     Optional<EventParticipation> findByEventAndAccount(Event event, Account account);
     List<EventParticipation> findByEventId(Long eventId);
+    boolean existsByEvent_IdAndAccount_IdAndStatus(Long eventId, Long accountId, EventParticipationStatus status);
 
 }

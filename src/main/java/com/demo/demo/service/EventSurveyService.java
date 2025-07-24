@@ -57,19 +57,20 @@ public class EventSurveyService {
         return mapSurveyToDTO(surveyRepo.save(survey));
     }
 
-    public EventSurveyDTO getSurveyByEvent(Long eventId, Long accountId) {
-        boolean isCheckedIn = eventParticipationRepository.existsByEvent_IdAndAccount_IdAndStatus(
-                eventId, accountId, EventParticipationStatus.CHECKED_IN);
+public EventSurveyDTO getSurveyByEvent(Long eventId, Long accountId) {
+    boolean isCheckedIn = eventParticipationRepository
+        .existsByEvent_IdAndAccount_IdAndStatus(eventId, accountId, EventParticipationStatus.CHECKED_IN);
 
-        if (!isCheckedIn) {
-            throw new RuntimeException("You must check-in before accessing the survey.");
-        }
-
-        EventSurvey survey = surveyRepo.findByEventId(eventId)
-                .orElseThrow(() -> new RuntimeException("Survey not found"));
-
-        return mapSurveyToDTO(survey);
+    if (!isCheckedIn) {
+        throw new RuntimeException("You must check-in before accessing the survey.");
     }
+
+    EventSurvey survey = surveyRepo.findByEventId(eventId)
+        .orElseThrow(() -> new RuntimeException("Survey not found"));
+
+    return mapSurveyToDTO(survey);
+}
+
 
 
     @Transactional

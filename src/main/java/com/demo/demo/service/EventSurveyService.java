@@ -3,11 +3,9 @@ package com.demo.demo.service;
 import com.demo.demo.dto.EventSurveyDTO;
 import com.demo.demo.dto.EventSurveyOptionDTO;
 import com.demo.demo.dto.EventSurveyQuestionDTO;
-import com.demo.demo.entity.Event;
-import com.demo.demo.entity.EventSurvey;
-import com.demo.demo.entity.EventSurveyOption;
-import com.demo.demo.entity.EventSurveyQuestion;
+import com.demo.demo.entity.*;
 import com.demo.demo.enums.EventParticipationStatus;
+import com.demo.demo.enums.Role;
 import com.demo.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,7 @@ public class EventSurveyService {
     private final EventSurveyQuestionRepository questionRepo;
     private final EventSurveyOptionRepository optionRepo;
     private final EventParticipationRepository eventParticipationRepository;
+    private final AccountRepository accountRepository;
 
     public EventSurveyDTO createSurvey(EventSurveyDTO dto) {
         Event event = eventRepo.findById(dto.getEventId())
@@ -58,11 +57,16 @@ public class EventSurveyService {
     }
 
     public EventSurveyDTO getSurveyByEvent(Long eventId, Long accountId) {
-        boolean isCheckedIn = eventParticipationRepository.existsByEvent_IdAndAccount_IdAndStatus(
-                eventId, accountId, EventParticipationStatus.CHECKED_IN);
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("You must login before accessing the survey."));
 
-        if (!isCheckedIn) {
-            throw new RuntimeException("You must check-in before accessing the survey.");
+        if (account.getRole() == Role.MEMBER) {
+            boolean isCheckedIn = eventParticipationRepository
+                    .existsByEvent_IdAndAccount_IdAndStatus(eventId, accountId, EventParticipationStatus.CHECKED_IN);
+
+            if (!isCheckedIn) {
+                throw new RuntimeException("You must check-in before accessing the survey.");
+            }
         }
 
         EventSurvey survey = surveyRepo.findByEventId(eventId)
@@ -70,6 +74,7 @@ public class EventSurveyService {
 
         return mapSurveyToDTO(survey);
     }
+
 
 
     @Transactional

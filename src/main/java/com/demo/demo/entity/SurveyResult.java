@@ -27,3 +27,4 @@ public class SurveyResult {
     private String recommendation;
     private LocalTime takenAt;
 }
+

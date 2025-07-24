@@ -1,5 +1,6 @@
 package com.demo.demo.entity;
 
+import jakarta.persistence.Column; // Thêm import này
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,7 +24,10 @@ public class Blog {
     private Long id;
     private String category;
     private String title;
+
+    @Column(columnDefinition = "TEXT") // Thêm annotation này
     private String content;
+
     private String description;
     private String author;
     private String readTime;

@@ -58,27 +58,27 @@ public class EventSurveyService {
         return mapSurveyToDTO(surveyRepo.save(survey)); // Hibernate hiểu đúng vì đã có liên kết đầy đủ
     }
 
+public EventSurveyDTO getSurveyByEvent(Long eventId, Long accountId) {
+    Account account = accountRepository.findById(accountId)
+            .orElseThrow(() -> new RuntimeException("You must login before accessing the survey."));
 
+    if (account.getRole() == Role.MEMBER) {
+        boolean isCheckedIn = eventParticipationRepository
+                .existsByEvent_IdAndAccount_IdAndStatus(eventId, accountId, EventParticipationStatus.CHECKED_IN);
 
-
-    public EventSurveyDTO getSurveyByEvent(Long eventId, Long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("You must login before accessing the survey."));
-
-        if (account.getRole() == Role.MEMBER) {
-            boolean isCheckedIn = eventParticipationRepository
-                    .existsByEvent_IdAndAccount_IdAndStatus(eventId, accountId, EventParticipationStatus.CHECKED_IN);
-
-            if (!isCheckedIn) {
-                throw new RuntimeException("You must check-in before accessing the survey.");
-            }
+        if (!isCheckedIn) {
+            throw new RuntimeException("You must check-in before accessing the survey.");
         }
-
-        EventSurvey survey = surveyRepo.findByEventId(eventId)
-                .orElseThrow(() -> new RuntimeException("Survey not found"));
-
-        return mapSurveyToDTO(survey);
     }
+
+    EventSurvey survey = surveyRepo.findByEventId(eventId)
+            .orElseThrow(() -> new RuntimeException("Survey not found"));
+
+    return mapSurveyToDTO(survey);
+}
+
+
+
 
 
 

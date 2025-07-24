@@ -55,5 +55,11 @@ public class MyExceptionHandler {
     public ResponseEntity<?> handleIllegalState(IllegalStateException e) {
         return new ResponseEntity<>(List.of(e.getMessage()), HttpStatus.CONFLICT);
     }
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("Lỗi hệ thống: " + ex.getMessage());
+    }
 
 }

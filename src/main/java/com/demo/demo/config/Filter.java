@@ -34,7 +34,9 @@ public class Filter extends OncePerRequestFilter {
 
     private final List<String> PUBLIC_API = List.of(
             "POST:/api/register",
-            "POST:/api/login"
+            "POST:/api/login",
+            "POST:/api/forgot-password",
+            "POST:/api/reset-password"
     );
 
     public boolean isPublicAPI(String uri, String method) {

@@ -2,13 +2,12 @@ package com.demo.demo.service;
 
 import com.demo.demo.dto.AccountRequest;
 import com.demo.demo.dto.AccountResponse;
-import com.demo.demo.dto.EmailDetail;
 import com.demo.demo.dto.LoginRequest;
 import com.demo.demo.entity.Account;
 import com.demo.demo.entity.Consultant;
+import com.demo.demo.enums.AccountStatus;
 import com.demo.demo.enums.Role;
-import com.demo.demo.enums.AccountStatus; // Import AccountStatus
-import com.demo.demo.exception.exceptions.AuthenticationException; // Sử dụng lại exception này
+import com.demo.demo.exception.exceptions.AuthenticationException;
 import com.demo.demo.repository.AuthenticationRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -33,7 +35,7 @@ public class AuthenticationService implements UserDetailsService {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    AuthenticationManager authenticationManager; // giúp check đăng nhập
+    AuthenticationManager authenticationManager;
 
     @Autowired
     ModelMapper modelMapper;
@@ -45,11 +47,7 @@ public class AuthenticationService implements UserDetailsService {
     EmailService emailService;
 
     public Account register(AccountRequest accountRequest) {
-
         Account account = toEntity(accountRequest);
-
-
-
 
         if (account.getRole() == Role.CONSULTANT) {
             Consultant consultant = new Consultant();
@@ -57,25 +55,17 @@ public class AuthenticationService implements UserDetailsService {
             account.getConsultants().add(consultant);
         }
 
-        // Encode the password before saving
         account.setPassword(passwordEncoder.encode(account.getPassword()));
-
-        // Save to DB
         Account newAccount = authenticationRepository.save(account);
-
-        // Send welcome email
         emailService.sendRegistrationConfirmation(newAccount.getEmail(), newAccount.getName());
-
         return newAccount;
     }
 
-    public Account getCurrentAccount(){
+    public Account getCurrentAccount() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return authenticationRepository.findAccountByEmail(email);
     }
 
-
-    // Giả định Account entity có trường `status` kiểu AccountStatus và các trường khác
     public static Account toEntity(AccountRequest request) {
         Account account = new Account();
         account.setEmail(request.getEmail());
@@ -87,78 +77,106 @@ public class AuthenticationService implements UserDetailsService {
         account.setDateOfBirth(request.getDateOfBirth());
         account.setGender(request.getGender());
         account.setRole(request.getRole());
-
         return account;
     }
 
-    public AccountResponse login(LoginRequest loginRequest){
-        Account account = null; // Khai báo account ở đây để có thể truy cập sau block try
-
+    public AccountResponse login(LoginRequest loginRequest) {
         try {
-
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getEmail(),
                     loginRequest.getPassword()
             ));
 
-
-            account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
-
+            Account account = authenticationRepository.findAccountByEmail(loginRequest.getEmail());
 
             if (account != null && account.getStatus() == AccountStatus.INACTIVE) {
-
-                System.out.println("Login blocked: Account INACTIVE for email: " + loginRequest.getEmail());
-                throw new AuthenticationException("tài khoản tạm thời bị vô hiệu hóa"); // Thông báo lỗi yêu cầu
+                throw new AuthenticationException("tài khoản tạm thời bị vô hiệu hóa");
             }
-
 
             if (account == null) {
-                System.err.println("Internal error: Authenticated user email not found in repository: " + loginRequest.getEmail());
-                throw new AuthenticationException("Login failed due to internal error.");
+                throw new AuthenticationException("Lỗi nội bộ: Không tìm thấy tài khoản sau khi xác thực.");
             }
 
+            AccountResponse accountResponse = modelMapper.map(account, AccountResponse.class);
+            String token = tokenService.generateToken(account);
+            accountResponse.setToken(token);
+            return accountResponse;
 
-        }catch (AuthenticationException e){
-
-            System.out.println("Authentication failed: " + e.getMessage());
-
-            throw e;
-        } catch (Exception e){
-
-            System.err.println("An unexpected error occurred during login: " + e.getMessage());
-
-            throw new AuthenticationException("An unexpected error occurred during login.");
+        } catch (Exception e) {
+            throw new AuthenticationException("Email hoặc mật khẩu không chính xác.");
         }
-
-
-        AccountResponse accountResponse = modelMapper.map(account, AccountResponse.class);
-
-        String token = tokenService.generateToken(account);
-        accountResponse.setToken(token);
-
-
-        return accountResponse;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
         Account account = authenticationRepository.findAccountByEmail(email);
         if (account == null) {
-            throw new UsernameNotFoundException("User not found with email: " + email);
+            throw new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email);
         }
-
         return account;
     }
 
-
     public Account getAccountById(long id) {
-
-        Optional<Account> accountOptional = authenticationRepository.findById(id);
-
-
-        return accountOptional.orElse(null);
+        return authenticationRepository.findById(id).orElse(null);
     }
 
-    // ----------------------------------------------
+    /**
+     * Xử lý yêu cầu quên mật khẩu, tạo mã OTP và gửi email.
+     */
+    public void requestPasswordReset(String email) {
+        Account account = authenticationRepository.findAccountByEmail(email);
+
+        if (account == null) {
+            System.out.println("Yêu cầu reset mật khẩu cho email không tồn tại: " + email);
+            return;
+        }
+
+        String otpCode = generateOtp();
+        account.setPasswordResetToken(otpCode);
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, 15); // Mã OTP có hiệu lực 15 phút
+        account.setTokenExpiryDate(cal.getTime());
+
+        authenticationRepository.save(account);
+
+        // Gọi EmailService để gửi mã OTP đi
+        emailService.sendPasswordResetEmail(account.getEmail(), account.getName(), otpCode);
+    }
+
+    /**
+     * Xác thực mã OTP và đặt lại mật khẩu mới.
+     */
+    public void resetPassword(String token, String newPassword) {
+        // 'token' ở đây chính là mã OTP người dùng nhập vào
+        Account account = authenticationRepository.findByPasswordResetToken(token);
+
+        if (account == null) {
+            throw new AuthenticationException("Mã xác thực không hợp lệ hoặc đã được sử dụng.");
+        }
+
+        if (account.getTokenExpiryDate().before(new Date())) {
+            // Dọn dẹp token đã hết hạn
+            account.setPasswordResetToken(null);
+            account.setTokenExpiryDate(null);
+            authenticationRepository.save(account);
+            throw new AuthenticationException("Mã xác thực đã hết hạn.");
+        }
+
+        account.setPassword(passwordEncoder.encode(newPassword));
+
+        // Dọn dẹp token sau khi sử dụng thành công
+        account.setPasswordResetToken(null);
+        account.setTokenExpiryDate(null);
+        authenticationRepository.save(account);
+    }
+
+    /**
+     * Tạo mã OTP 6 chữ số ngẫu nhiên.
+     */
+    private String generateOtp() {
+        SecureRandom random = new SecureRandom();
+        int otp = 100000 + random.nextInt(900000);
+        return String.valueOf(otp);
+    }
 }

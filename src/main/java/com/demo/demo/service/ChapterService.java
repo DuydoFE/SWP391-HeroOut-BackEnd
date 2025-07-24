@@ -13,6 +13,8 @@ import com.demo.demo.exception.exceptions.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.demo.demo.service.CloudinaryService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,12 +34,28 @@ public class ChapterService {
     @Autowired
     private EnrollmentChapterRepository enrollmentChapterRepository;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     public ChapterResponse updateChapter(Long id, ChapterRequest request, Long courseId) {
         Chapter chapter = chapterRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Chapter not found"));
 
         chapter.setTitle(request.getTitle());
         chapter.setContent(request.getContent());
+
+        try {
+            if (request.getImage() != null && !request.getImage().isEmpty()) {
+                String imageUrl = cloudinaryService.uploadFile(request.getImage(), "chapters/images");
+                chapter.setImage(imageUrl);
+            }
+            if (request.getVideo() != null && !request.getVideo().isEmpty()) {
+                String videoUrl = cloudinaryService.uploadFile(request.getVideo(), "chapters/videos");
+                chapter.setVideo(videoUrl);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Upload file thất bại: " + e.getMessage());
+        }
 
         if (!chapter.getCourse().getId().equals(courseId)) {
             Course course = courseRepository.findById(courseId)

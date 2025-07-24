@@ -32,7 +32,8 @@ public class EventSurveyService {
 
         EventSurvey survey = new EventSurvey();
         survey.setTitle(dto.getTitle());
-        survey.setEvent(event);
+        survey.setEvent(event); // chiều A → B
+        event.setEventSurvey(survey); // ❗ PHẢI có chiều B → A để tránh Hibernate hiểu là entity mới
 
         List<EventSurveyQuestion> questions = new ArrayList<>();
         for (EventSurveyQuestionDTO qDto : dto.getQuestions()) {
@@ -53,8 +54,12 @@ public class EventSurveyService {
         }
 
         survey.setQuestions(questions);
-        return mapSurveyToDTO(surveyRepo.save(survey));
+
+        return mapSurveyToDTO(surveyRepo.save(survey)); // Hibernate hiểu đúng vì đã có liên kết đầy đủ
     }
+
+
+
 
     public EventSurveyDTO getSurveyByEvent(Long eventId, Long accountId) {
         Account account = accountRepository.findById(accountId)

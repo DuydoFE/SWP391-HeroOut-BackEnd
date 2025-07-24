@@ -28,6 +28,10 @@ public class Account implements UserDetails {
     public String address;
     public String avatar;
 
+    private String passwordResetToken;
+    @Temporal(TemporalType.TIMESTAMP) // Lưu cả ngày và giờ
+    private Date tokenExpiryDate;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

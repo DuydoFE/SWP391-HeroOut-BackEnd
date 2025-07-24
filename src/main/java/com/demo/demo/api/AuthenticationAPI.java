@@ -1,8 +1,6 @@
 package com.demo.demo.api;
 
-import com.demo.demo.dto.AccountRequest;
-import com.demo.demo.dto.AccountResponse;
-import com.demo.demo.dto.LoginRequest;
+import com.demo.demo.dto.*;
 import com.demo.demo.entity.Account;
 import com.demo.demo.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable; // Import PathVaria
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -56,6 +56,34 @@ public class AuthenticationAPI {
         // Trả về 200 OK và thông tin account
         return ResponseEntity.ok(account);
     }
-    // ------------------------------------
+    @PostMapping("/api/forgot-password")
+    // Thay đổi Map<String, String> thành ForgotPasswordRequest
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        // Lấy email từ đối tượng request thay vì từ Map
+        String email = request.getEmail();
+
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body("Email is required.");
+        }
+        authenticationService.requestPasswordReset(email);
+
+        return ResponseEntity.ok("Nếu tài khoản tồn tại, một mã xác nhận đã được gửi đến email của bạn.");
+    }
+
+    // --- API MỚI: ĐẶT LẠI MẬT KHẨU MỚI ---
+    @PostMapping("/api/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
+        try {
+            authenticationService.resetPassword(
+                    passwordResetRequest.getToken(),
+                    passwordResetRequest.getNewPassword()
+            );
+            return ResponseEntity.ok("Mật khẩu của bạn đã được đặt lại thành công.");
+        } catch (Exception e) {
+            // Bắt các lỗi (token sai, hết hạn) từ service và trả về cho client
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 
 }

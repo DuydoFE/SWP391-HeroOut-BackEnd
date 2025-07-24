@@ -1,27 +1,34 @@
 package com.demo.demo.service;
 
+import com.demo.demo.dto.EventDTO;
 import com.demo.demo.dto.EventRequest;
 import com.demo.demo.entity.Event;
+import com.demo.demo.entity.EventSurvey;
 import com.demo.demo.repository.EventRepository;
+import com.demo.demo.repository.EventSurveyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class EventService {
 
     @Autowired
-    EventRepository eventRepository;
+    private EventRepository eventRepository;
+
+    @Autowired
+    private EventSurveyRepository eventSurveyRepository;
+
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<Event> getAllEvents() {
-        return eventRepository.findAll();
-    }
+
 
     public Event createEvent(EventRequest request) {
         validateEventTime(request.getStartTime(), request.getEndTime());
@@ -44,11 +51,39 @@ public class EventService {
             throw new IllegalArgumentException("startTime phải nhỏ hơn endTime");
         }
     }
+    public List<EventDTO> getAllEvents() {
+        List<Event> events = eventRepository.findAll();
+        List<EventDTO> result = new ArrayList<>();
 
-    public Event getEventById(Long id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
+        for (Event event : events) {
+            EventDTO dto = new EventDTO();
+            dto.setId(event.getId());
+            dto.setTitle(event.getTitle());
+            dto.setDescription(event.getDescription());
+            dto.setLocation(event.getLocation());
+            dto.setStartTime(event.getStartTime());
+            dto.setEndTime(event.getEndTime());
+            result.add(dto);
+        }
+
+        return result;
     }
+
+    public EventDTO getEventById(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
+
+        EventDTO dto = new EventDTO();
+        dto.setId(event.getId());
+        dto.setTitle(event.getTitle());
+        dto.setDescription(event.getDescription());
+        dto.setLocation(event.getLocation());
+        dto.setStartTime(event.getStartTime());
+        dto.setEndTime(event.getEndTime());
+
+        return dto;
+    }
+
 
     public void removeEvent(Event event) {
         eventRepository.delete(event);
@@ -70,10 +105,20 @@ public class EventService {
     }
 
 
+    @Transactional
     public void removeEventById(Long id) {
-        if (!eventRepository.existsById(id)) {
-            throw new EntityNotFoundException("Event not found with ID: " + id);
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
+
+        EventSurvey survey = event.getEventSurvey();
+        if (survey != null) {
+            survey.setEvent(null);
+            event.setEventSurvey(null);
+            eventSurveyRepository.delete(survey);
         }
-        eventRepository.deleteById(id);
+
+        // Cuối cùng xoá Event
+        eventRepository.delete(event);
     }
+
 }

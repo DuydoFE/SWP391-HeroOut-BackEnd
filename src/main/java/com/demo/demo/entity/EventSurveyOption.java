@@ -1,5 +1,6 @@
 package com.demo.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,5 +23,6 @@ public class EventSurveyOption {
 
     @ManyToOne
     @JoinColumn(name = "question_id")
+    @JsonIgnore
     private EventSurveyQuestion question;
 }

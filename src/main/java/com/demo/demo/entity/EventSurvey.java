@@ -1,5 +1,6 @@
 package com.demo.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +23,9 @@ public class EventSurvey {
 
     @OneToOne
     @JoinColumn(name = "event_id")
+    @JsonBackReference
     private Event event;
+
 
     @OneToMany(mappedBy = "eventSurvey", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventSurveyQuestion> questions;

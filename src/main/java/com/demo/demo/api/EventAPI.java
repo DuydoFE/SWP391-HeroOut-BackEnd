@@ -1,5 +1,6 @@
 package com.demo.demo.api;
 
+import com.demo.demo.dto.EventDTO;
 import com.demo.demo.dto.EventRequest;
 import com.demo.demo.entity.Event;
 import com.demo.demo.service.EventService;
@@ -29,17 +30,16 @@ public class EventAPI {
 
 
 
-    // READ ALL
     @GetMapping
-    public ResponseEntity<List<Event>> getAllEvents() {
-        List<Event> events = eventService.getAllEvents();
+    public ResponseEntity<List<EventDTO>> getAllEvents() {
+        List<EventDTO> events = eventService.getAllEvents();
         return ResponseEntity.ok(events);
     }
 
     // READ ONE BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<Event> getEventById(@PathVariable Long id) {
-        Event event = eventService.getEventById(id);
+    public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
+        EventDTO event = eventService.getEventById(id);
         return ResponseEntity.ok(event);
     }
 

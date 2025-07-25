@@ -12,8 +12,6 @@ import com.demo.demo.repository.CourseRepository;
 import com.demo.demo.repository.EnrollmentRepository;
 import com.demo.demo.repository.ChapterRepository;
 import com.demo.demo.repository.AccountRepository;
-import com.demo.demo.service.CloudinaryService;
-import org.springframework.web.multipart.MultipartFile;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,9 +38,6 @@ public class CourseService {
     private AccountRepository accountRepository;
 
     @Autowired
-    private CloudinaryService cloudinaryService;
-
-    @Autowired
     private ModelMapper modelMapper;
 
     public CourseCreateResponse createCourse(CourseRequest request) {
@@ -65,18 +60,6 @@ public class CourseService {
                 chapter.setTitle(chapterRequest.getTitle());
                 chapter.setContent(chapterRequest.getContent());
                 chapter.setCourse(saved);
-                try {
-                    if (chapterRequest.getImage() != null && !chapterRequest.getImage().isEmpty()) {
-                        String imageUrl = cloudinaryService.uploadFile(chapterRequest.getImage(), "chapters/images");
-                        chapter.setImage(imageUrl);
-                    }
-                    if (chapterRequest.getVideo() != null && !chapterRequest.getVideo().isEmpty()) {
-                        String videoUrl = cloudinaryService.uploadFile(chapterRequest.getVideo(), "chapters/videos");
-                        chapter.setVideo(videoUrl);
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException("Upload file thất bại: " + e.getMessage());
-                }
                 Chapter savedChapter = chapterRepository.save(chapter);
 
                 ChapterResponse chapterResponse = new ChapterResponse();
@@ -84,8 +67,6 @@ public class CourseService {
                 chapterResponse.setCourseId(savedChapter.getCourse().getId());
                 chapterResponse.setTitle(savedChapter.getTitle());
                 chapterResponse.setContent(savedChapter.getContent());
-                chapterResponse.setImage(savedChapter.getImage());
-                chapterResponse.setVideo(savedChapter.getVideo());
                 return chapterResponse;
             }).collect(Collectors.toList());
         }

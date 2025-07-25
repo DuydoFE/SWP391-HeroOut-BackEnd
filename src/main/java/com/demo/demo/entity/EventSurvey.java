@@ -1,6 +1,7 @@
 package com.demo.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class EventSurvey {
 
     @OneToOne
     @JoinColumn(name = "event_id")
-    @JsonBackReference
+    @JsonIgnore
     private Event event;
 
 

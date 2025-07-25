@@ -10,6 +10,7 @@ import com.demo.demo.repository.EventSurveyQuestionRepository;
 import com.demo.demo.repository.EventSurveyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class EventSurveyQuestionService {
     private final EventSurveyQuestionRepository questionRepo;
     private final EventSurveyRepository surveyRepo;
     private final EventSurveyOptionRepository optionRepo;
+    private final EventSurveyOptionService optionService;
 
     public EventSurveyQuestionDTO createQuestion(EventSurveyQuestionDTO dto, Long surveyId) {
         EventSurvey survey = surveyRepo.findById(surveyId)
@@ -46,28 +48,35 @@ public class EventSurveyQuestionService {
         return mapToDTO(questionRepo.save(question));
     }
 
+    @Transactional
     public EventSurveyQuestionDTO updateQuestion(Long id, EventSurveyQuestionDTO dto) {
         EventSurveyQuestion question = questionRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
         question.setQuestionText(dto.getQuestionText());
 
-        // Xóa option cũ và thêm option mới nếu có
-        optionRepo.deleteAll(question.getOptions());
-        List<EventSurveyOption> newOptions = new ArrayList<>();
-        if (dto.getOptions() != null) {
-            for (EventSurveyOptionDTO oDto : dto.getOptions()) {
-                EventSurveyOption option = new EventSurveyOption();
-                option.setContent(oDto.getContent());
-                option.setScore(oDto.getScore());
-                option.setQuestion(question);
-                newOptions.add(option);
+        // Cập nhật hoặc thêm mới option
+        List<Long> incomingIds = new ArrayList<>();
+        for (EventSurveyOptionDTO oDto : dto.getOptions()) {
+            if (oDto.getId() != null) {
+                optionService.updateOption(oDto.getId(), oDto);
+                incomingIds.add(oDto.getId());
+            } else {
+                // Tạo mới option
+                EventSurveyOption newOption = new EventSurveyOption();
+                newOption.setContent(oDto.getContent());
+                newOption.setScore(oDto.getScore());
+                newOption.setQuestion(question);
+                question.getOptions().add(newOption);
             }
         }
-        question.setOptions(newOptions);
+
+        // Xóa option cũ không còn trong danh sách mới (để orphanRemoval hoạt động đúng)
+        question.getOptions().removeIf(option -> option.getId() != null && !incomingIds.contains(option.getId()));
 
         return mapToDTO(questionRepo.save(question));
     }
+
 
     public void deleteQuestion(Long id) {
         questionRepo.deleteById(id);

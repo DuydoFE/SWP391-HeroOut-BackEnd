@@ -36,8 +36,7 @@ public class Event {
     @Column(nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime endTime;
 
-    @OneToOne(mappedBy = "event")
-    @JsonManagedReference
+    @OneToOne(mappedBy = "event",cascade = CascadeType.ALL, orphanRemoval = true)
     private EventSurvey eventSurvey;
 
 }

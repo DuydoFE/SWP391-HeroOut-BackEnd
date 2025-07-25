@@ -11,8 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,7 +23,7 @@ public class CourseAPI {
     private CourseService courseService;
 
     @PostMapping
-    public CourseCreateResponse createCourse(@ModelAttribute CourseRequest request) {
+    public CourseCreateResponse createCourse(@RequestBody CourseRequest request) {
         return courseService.createCourse(request);
     }
 

@@ -1,3 +1,5 @@
+// file: src/main/java/com/demo/demo/service/AccountService.java
+
 package com.demo.demo.service;
 
 import com.demo.demo.dto.UpdateAccountRequest;
@@ -7,6 +9,7 @@ import com.demo.demo.enums.AgeGroup;
 import com.demo.demo.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Cần import Transactional
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -31,7 +34,7 @@ public class AccountService {
         account.setAddress(request.getAddress());
         account.setAvatar(request.getAvatar());
         account.setDateOfBirth(request.getDateOfBirth());
-        account.setGender(request.getGender()); // Added setter for gender
+        account.setGender(request.getGender());
 
         return accountRepository.save(account);
     }
@@ -40,12 +43,36 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
+    @Transactional // Thêm transactional để tự động quản lý transaction
     public void updateAccountStatus(Long id, AccountStatus status) {
         Account acc = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với ID: " + id));
         acc.setStatus(status);
-        accountRepository.save(acc);
+        // Với @Transactional, JPA sẽ tự động lưu khi transaction kết thúc.
     }
+
+    // ===== PHƯƠNG THỨC CẬP NHẬT AVATAR ĐÃ SỬA LỖI =====
+    /**
+     * Tìm một tài khoản bằng ID và cập nhật trường avatar của nó.
+     * @param accountId ID của tài khoản cần cập nhật.
+     * @param avatarUrl URL mới của avatar (nhận được từ Cloudinary).
+     * @throws RuntimeException nếu không tìm thấy tài khoản.
+     */
+    @Transactional
+    public void updateAvatar(Long accountId, String avatarUrl) {
+        // Sử dụng orElseThrow để code gọn hơn và ném ra lỗi nếu không tìm thấy
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với ID: " + accountId));
+
+        // Cập nhật trường avatar
+        account.setAvatar(avatarUrl);
+
+        // ====================== THAY ĐỔI DUY NHẤT Ở ĐÂY ======================
+        // Gọi save() một cách tường minh để đảm bảo thay đổi được ghi vào cơ sở dữ liệu.
+        accountRepository.save(account);
+        // ===================================================================
+    }
+
 
     public static int calculateAge(LocalDate birthDate) {
         if (birthDate == null) return 0;

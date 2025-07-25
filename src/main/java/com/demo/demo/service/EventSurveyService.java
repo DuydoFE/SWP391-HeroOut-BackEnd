@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,8 @@ public class EventSurveyService {
     private final EventSurveyOptionRepository optionRepo;
     private final EventParticipationRepository eventParticipationRepository;
     private final AccountRepository accountRepository;
+    private final EventSurveyQuestionService questionService;
+    private final EventSurveyOptionService optionService;
 
     public EventSurveyDTO createSurvey(EventSurveyDTO dto) {
         Event event = eventRepo.findById(dto.getEventId())
@@ -90,57 +93,37 @@ public EventSurveyDTO getSurveyByEvent(Long eventId, Long accountId) {
         // Cập nhật title
         survey.setTitle(dto.getTitle());
 
-        // Map câu hỏi cũ theo id để tiện đối chiếu
-        Map<Long, EventSurveyQuestion> oldQuestions = survey.getQuestions().stream()
-                .collect(Collectors.toMap(EventSurveyQuestion::getId, q -> q));
-
-        List<EventSurveyQuestion> updatedQuestions = new ArrayList<>();
-
+        // Gọi service cập nhật từng câu hỏi
         for (EventSurveyQuestionDTO qDto : dto.getQuestions()) {
-            EventSurveyQuestion question;
-
-            // Nếu có id thì là update
-            if (qDto.getId() != null && oldQuestions.containsKey(qDto.getId())) {
-                question = oldQuestions.remove(qDto.getId()); // lấy ra và đánh dấu là đã xử lý
-                question.setQuestionText(qDto.getQuestionText());
-
-                // Xóa hết options cũ (có thể viết thông minh hơn nếu cần)
-                question.getOptions().clear();
-
-            } else {
-                // Câu hỏi mới
-                question = new EventSurveyQuestion();
-                question.setEventSurvey(survey);
-                question.setQuestionText(qDto.getQuestionText());
+            if (qDto.getId() != null) {
+                questionService.updateQuestion(qDto.getId(), qDto);
             }
-
-            // Gán options mới
-            List<EventSurveyOption> options = qDto.getOptions().stream().map(oDto -> {
-                EventSurveyOption o = new EventSurveyOption();
-                o.setContent(oDto.getContent());
-                o.setScore(oDto.getScore());
-                o.setQuestion(question);
-                return o;
-            }).collect(Collectors.toList());
-
-            question.setOptions(options);
-            updatedQuestions.add(question);
         }
-
-        // Xóa các câu hỏi đã bị xoá (không còn trong dto)
-        for (EventSurveyQuestion toDelete : oldQuestions.values()) {
-            questionRepo.delete(toDelete);
-        }
-
-        survey.setQuestions(updatedQuestions);
 
         return mapSurveyToDTO(surveyRepo.save(survey));
     }
 
 
+
+
+
+    @Transactional
     public void deleteSurvey(Long eventId) {
-        surveyRepo.deleteByEventId(eventId);
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        EventSurvey survey = surveyRepo.findByEventId(eventId)
+                .orElse(null);
+
+        if (survey != null) {
+            event.setEventSurvey(null);
+
+            surveyRepo.delete(survey);
+
+            eventRepo.save(event);
+        }
     }
+
 
     private EventSurveyDTO mapSurveyToDTO(EventSurvey survey) {
         EventSurveyDTO dto = new EventSurveyDTO();

@@ -1,6 +1,8 @@
+// file: src/main/java/com/demo/demo/entity/Blog.java
+
 package com.demo.demo.entity;
 
-import jakarta.persistence.Column; // Thêm import này
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,8 +27,11 @@ public class Blog {
     private String category;
     private String title;
 
-    @Column(columnDefinition = "TEXT") // Thêm annotation này
+    @Column(columnDefinition = "TEXT")
     private String content;
+
+
+    private String image; // Trường này sẽ lưu URL của ảnh bìa từ Cloudinary
 
     private String description;
     private String author;

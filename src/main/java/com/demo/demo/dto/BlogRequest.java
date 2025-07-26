@@ -33,5 +33,7 @@ public class BlogRequest {
 
     private LocalDate date;
 
+    private String image;
+
     private String tags;
 }

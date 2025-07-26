@@ -67,10 +67,9 @@ public class AccountService {
         // Cập nhật trường avatar
         account.setAvatar(avatarUrl);
 
-        // ====================== THAY ĐỔI DUY NHẤT Ở ĐÂY ======================
         // Gọi save() một cách tường minh để đảm bảo thay đổi được ghi vào cơ sở dữ liệu.
         accountRepository.save(account);
-        // ===================================================================
+
     }
 
 

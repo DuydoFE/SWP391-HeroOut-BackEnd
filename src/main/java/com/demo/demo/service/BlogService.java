@@ -35,6 +35,7 @@ public class BlogService {
         return blogRepository.save(existing);
     }
 
+    // ===== CẬP NHẬT HÀM NÀY =====
     private void mapRequestToBlog(BlogRequest request, Blog blog) {
         blog.setTitle(request.getTitle());
         blog.setContent(request.getContent());
@@ -45,6 +46,9 @@ public class BlogService {
         blog.setViews(request.getViews());
         blog.setDate(request.getDate());
         blog.setTags(request.getTags());
+
+        // Thêm dòng này để map trường image
+        blog.setImage(request.getImage());
     }
 
     public void deleteBlog(Long id) {

@@ -41,7 +41,6 @@ public class CourseService {
     private ModelMapper modelMapper;
 
     public CourseCreateResponse createCourse(CourseRequest request) {
-        // Tạo course mà không map chapters field
         Course course = new Course();
         course.setTitle(request.getTitle());
         course.setDescription(request.getDescription());
@@ -52,13 +51,14 @@ public class CourseService {
 
         Course saved = courseRepository.save(course);
 
-        // Tạo chapters nếu có trong request
         List<ChapterResponse> chapterResponses = null;
         if (request.getChapters() != null && !request.getChapters().isEmpty()) {
             chapterResponses = request.getChapters().stream().map(chapterRequest -> {
                 Chapter chapter = new Chapter();
                 chapter.setTitle(chapterRequest.getTitle());
                 chapter.setContent(chapterRequest.getContent());
+                chapter.setImage(chapterRequest.getImage());
+                chapter.setVideo(chapterRequest.getVideo());
                 chapter.setCourse(saved);
                 Chapter savedChapter = chapterRepository.save(chapter);
 
@@ -67,6 +67,8 @@ public class CourseService {
                 chapterResponse.setCourseId(savedChapter.getCourse().getId());
                 chapterResponse.setTitle(savedChapter.getTitle());
                 chapterResponse.setContent(savedChapter.getContent());
+                chapterResponse.setImage(savedChapter.getImage());
+                chapterResponse.setVideo(savedChapter.getVideo());
                 return chapterResponse;
             }).collect(Collectors.toList());
         }
@@ -78,7 +80,6 @@ public class CourseService {
         enrollment.setCreatedAt(LocalDateTime.now());
         enrollmentRepository.save(enrollment);
 
-        // Tạo response với chapters
         CourseCreateResponse response = new CourseCreateResponse();
         response.setId(saved.getId());
         response.setTitle(saved.getTitle());
@@ -178,6 +179,14 @@ public class CourseService {
 
 
     public List<CourseResponse> getCoursesNotStartedByAccount(Long accountId) {
+        if (accountId == null) {
+            List<Course> allActiveCourses = courseRepository.findAll()
+                    .stream()
+                    .filter(course -> course.getStatus() == CourseStatus.ACTIVE)
+                    .collect(Collectors.toList());
+            return allActiveCourses.stream().map(this::mapCourseWithTotal).collect(Collectors.toList());
+        }
+
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
         java.util.Date dob = account.getDateOfBirth();

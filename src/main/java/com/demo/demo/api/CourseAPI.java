@@ -43,7 +43,7 @@ public class CourseAPI {
     }
 
     @GetMapping("/not-started")
-    public List<CourseResponse> getNotStartedCourses(@RequestParam Long accountId) {
+    public List<CourseResponse> getNotStartedCourses(@RequestParam(required = false) Long accountId) {
         return courseService.getCoursesNotStartedByAccount(accountId);
     }
 

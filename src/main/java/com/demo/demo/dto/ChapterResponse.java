@@ -8,4 +8,6 @@ public class ChapterResponse {
     private Long courseId;
     private String title;
     private String content;
+    private String image;
+    private String video;
 }

@@ -29,13 +29,13 @@ public class SlotService {
     @Autowired
     ConsultantRepository consultantRepository;
 
-    // Các phương thức khác giữ nguyên...
+
     public List<Slot> get() {
         return slotRepository.findByIsDeletedFalse();
     }
 
 
-    // === PHƯƠNG THỨC ĐƯỢC CẬP NHẬT ===
+
     @Transactional
     public List<Schedule> registerSlot(RegisterSlotDTO registerSlotDTO) {
         // 1. Kiểm tra đầu vào
@@ -43,13 +43,13 @@ public class SlotService {
             throw new BadRequestException("Danh sách slotId không được để trống.");
         }
 
-        // === PHẦN THÊM MỚI: KIỂM TRA NGÀY TRONG QUÁ KHỨ ===
+
         // So sánh ngày đăng ký với ngày hiện tại.
         // LocalDate.now() sẽ lấy ngày hiện tại của hệ thống server.
         if (registerSlotDTO.getDate().isBefore(LocalDate.now())) {
             throw new BadRequestException("Không thể đăng ký lịch cho một ngày trong quá khứ.");
         }
-        // === KẾT THÚC PHẦN THÊM MỚI ===
+
 
         // 2. Tìm Consultant
         Consultant consultant = consultantRepository.findById(registerSlotDTO.getConsultantId())

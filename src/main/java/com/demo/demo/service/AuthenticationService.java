@@ -149,11 +149,9 @@ public class AuthenticationService implements UserDetailsService {
         emailService.sendPasswordResetEmail(account.getEmail(), account.getName(), otpCode);
     }
 
-    /**
-     * Xác thực mã OTP và đặt lại mật khẩu mới.
-     */
+
     public void resetPassword(String token, String newPassword) {
-        // 'token' ở đây chính là mã OTP người dùng nhập vào
+
         Account account = authenticationRepository.findByPasswordResetToken(token);
 
         if (account == null) {
@@ -176,9 +174,7 @@ public class AuthenticationService implements UserDetailsService {
         authenticationRepository.save(account);
     }
 
-    /**
-     * Tạo mã OTP 6 chữ số ngẫu nhiên.
-     */
+
     private String generateOtp() {
         SecureRandom random = new SecureRandom();
         int otp = 100000 + random.nextInt(900000);

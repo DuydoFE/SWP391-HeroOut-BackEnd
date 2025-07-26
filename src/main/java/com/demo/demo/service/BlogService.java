@@ -35,7 +35,7 @@ public class BlogService {
         return blogRepository.save(existing);
     }
 
-    // ===== CẬP NHẬT HÀM NÀY =====
+
     private void mapRequestToBlog(BlogRequest request, Blog blog) {
         blog.setTitle(request.getTitle());
         blog.setContent(request.getContent());

@@ -10,8 +10,9 @@ import com.demo.demo.repository.ScheduleRepository;
 import com.demo.demo.repository.SlotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Import Transactional
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate; // Đảm bảo đã import LocalDate
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +34,22 @@ public class SlotService {
         return slotRepository.findByIsDeletedFalse();
     }
 
-    // === VIẾT LẠI HOÀN TOÀN PHƯƠNG THỨC NÀY ===
-    @Transactional // Đảm bảo tất cả các thao tác lưu thành công hoặc không có gì cả
+
+    // === PHƯƠNG THỨC ĐƯỢC CẬP NHẬT ===
+    @Transactional
     public List<Schedule> registerSlot(RegisterSlotDTO registerSlotDTO) {
         // 1. Kiểm tra đầu vào
         if (registerSlotDTO.getSlotIds() == null || registerSlotDTO.getSlotIds().isEmpty()) {
             throw new BadRequestException("Danh sách slotId không được để trống.");
         }
+
+        // === PHẦN THÊM MỚI: KIỂM TRA NGÀY TRONG QUÁ KHỨ ===
+        // So sánh ngày đăng ký với ngày hiện tại.
+        // LocalDate.now() sẽ lấy ngày hiện tại của hệ thống server.
+        if (registerSlotDTO.getDate().isBefore(LocalDate.now())) {
+            throw new BadRequestException("Không thể đăng ký lịch cho một ngày trong quá khứ.");
+        }
+        // === KẾT THÚC PHẦN THÊM MỚI ===
 
         // 2. Tìm Consultant
         Consultant consultant = consultantRepository.findById(registerSlotDTO.getConsultantId())
@@ -56,7 +66,6 @@ public class SlotService {
             // 5. Kiểm tra xem lịch hẹn đã tồn tại chưa để tránh trùng lặp
             Schedule existingSchedule = scheduleRepository.findScheduleBySlotIdAndConsultantAndDate(slotId, consultant, registerSlotDTO.getDate());
             if (existingSchedule != null) {
-                // Bạn có thể bỏ qua lỗi này nếu muốn, hoặc báo lỗi để người dùng biết
                 throw new BadRequestException("Lịch hẹn cho slot " + slotId + " vào ngày " + registerSlotDTO.getDate() + " đã tồn tại.");
             }
 
@@ -65,7 +74,6 @@ public class SlotService {
             schedule.setSlot(slot);
             schedule.setConsultant(consultant);
             schedule.setDate(registerSlotDTO.getDate());
-            // bạn có thể đặt trạng thái mặc định ở đây, ví dụ: schedule.setStatus("AVAILABLE");
             newSchedules.add(schedule);
         }
 

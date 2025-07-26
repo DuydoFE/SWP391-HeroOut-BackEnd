@@ -38,6 +38,8 @@ public class ChapterService {
 
         chapter.setTitle(request.getTitle());
         chapter.setContent(request.getContent());
+        chapter.setImage(request.getImage());
+        chapter.setVideo(request.getVideo());
 
         if (!chapter.getCourse().getId().equals(courseId)) {
             Course course = courseRepository.findById(courseId)

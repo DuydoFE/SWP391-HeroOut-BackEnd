@@ -9,6 +9,8 @@ public class ChapterResponseStatus {
     private Long courseId;
     private String title;
     private String content;
+    private String image;
+    private String video;
     private ProgressStatus status;
 }
 

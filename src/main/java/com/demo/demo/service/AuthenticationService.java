@@ -47,6 +47,13 @@ public class AuthenticationService implements UserDetailsService {
     EmailService emailService;
 
     public Account register(AccountRequest accountRequest) {
+
+        // Kiểm tra xem email đã được đăng ký trước đó chưa
+        if (authenticationRepository.findAccountByEmail(accountRequest.getEmail()) != null) {
+            // Nếu email đã tồn tại, ném ra một lỗi để API có thể bắt được
+            throw new RuntimeException("Tài khoản đã tồn tại");
+        }
+
         Account account = toEntity(accountRequest);
 
         if (account.getRole() == Role.CONSULTANT) {
@@ -120,9 +127,7 @@ public class AuthenticationService implements UserDetailsService {
         return authenticationRepository.findById(id).orElse(null);
     }
 
-    /**
-     * Xử lý yêu cầu quên mật khẩu, tạo mã OTP và gửi email.
-     */
+
     public void requestPasswordReset(String email) {
         Account account = authenticationRepository.findAccountByEmail(email);
 

@@ -26,13 +26,16 @@ public class AuthenticationAPI {
     // api > service > repository
 
     @PostMapping("/api/register")
-    public ResponseEntity register(@RequestBody AccountRequest account){
-        Account newAccount = authenticationService.register(account);
-        // Có thể kiểm tra nếu đăng ký thất bại và trả về lỗi
-        if (newAccount == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration failed"); // Ví dụ xử lý lỗi
+    public ResponseEntity<?> register(@RequestBody AccountRequest account) {
+        try {
+            Account newAccount = authenticationService.register(account);
+            // Nếu đăng ký thành công, trả về tài khoản mới và mã 200 OK
+            return ResponseEntity.ok(newAccount);
+        } catch (RuntimeException e) {
+            // Nếu service ném ra lỗi (ví dụ: email đã tồn tại),
+            // bắt lỗi đó và trả về thông báo lỗi cùng mã 400 Bad Request
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        return ResponseEntity.ok(newAccount);
     }
     @PostMapping("/api/login")
     public ResponseEntity login(@RequestBody LoginRequest loginRequest){

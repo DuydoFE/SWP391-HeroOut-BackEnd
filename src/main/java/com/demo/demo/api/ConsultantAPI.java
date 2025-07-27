@@ -4,6 +4,7 @@ package com.demo.demo.api;
 // import com.demo.demo.entity.Consultant;
 
 import com.demo.demo.dto.ConsultantResponse; // Import ConsultantResponse DTO
+import com.demo.demo.dto.ConsultantUpdateRequest;
 import com.demo.demo.service.ConsultantService; // Import ConsultantService
 import com.demo.demo.exception.exceptions.ResourceNotFoundException; // Import ResourceNotFoundException để xử lý 404
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -52,6 +53,20 @@ public class ConsultantAPI {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
 
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ConsultantResponse> updateConsultant(
+            @PathVariable Long id,
+            @RequestBody ConsultantUpdateRequest updateRequest) {
+        try {
+            ConsultantResponse updatedConsultant = consultantService.updateConsultant(id, updateRequest);
+            return ResponseEntity.ok(updatedConsultant); // Trả về 200 OK với dữ liệu đã cập nhật
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Trả về 404 nếu không tìm thấy
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
 }

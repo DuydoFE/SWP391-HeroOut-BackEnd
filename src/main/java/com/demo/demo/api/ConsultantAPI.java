@@ -1,7 +1,5 @@
 package com.demo.demo.api;
 
-// Thay thế import Entity Consultant bằng import DTO ConsultantResponse
-// import com.demo.demo.entity.Consultant;
 
 import com.demo.demo.dto.ConsultantResponse; // Import ConsultantResponse DTO
 import com.demo.demo.dto.ConsultantUpdateRequest;
@@ -32,14 +30,14 @@ public class ConsultantAPI {
     }
 
 
-    @GetMapping // Maps to /api/consultants (GET)
+    @GetMapping
 
     public ResponseEntity<List<ConsultantResponse>> getAllConsultants() {
-        List<ConsultantResponse> consultantResponses = consultantService.getAllConsultants(); // Gọi Service
-        return ResponseEntity.ok(consultantResponses); // Trả về danh sách DTO
+        List<ConsultantResponse> consultantResponses = consultantService.getAllConsultants();
+        return ResponseEntity.ok(consultantResponses);
     }
 
-    @GetMapping("/{id}") // Maps to /api/consultants/{id} (GET)
+    @GetMapping("/{id}")
 
     public ResponseEntity<ConsultantResponse> getConsultantById(@PathVariable Long id) {
         try {

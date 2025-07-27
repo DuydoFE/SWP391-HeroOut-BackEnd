@@ -42,6 +42,7 @@ public class EventParticipation {
     private EventParticipationStatus status;
 
     @OneToMany(mappedBy = "participation", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<EventSurveyResponse> responses;
 
     private Integer totalScore;

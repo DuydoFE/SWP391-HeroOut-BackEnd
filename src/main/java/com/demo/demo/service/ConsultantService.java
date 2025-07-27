@@ -1,6 +1,7 @@
 package com.demo.demo.service;
 
 import com.demo.demo.dto.ConsultantResponse; // Import DTO
+import com.demo.demo.dto.ConsultantUpdateRequest;
 import com.demo.demo.entity.Consultant; // Import Entity
 import com.demo.demo.exception.exceptions.ResourceNotFoundException; // Import Exception
 import com.demo.demo.repository.ConsultantRepository; // Import Repository
@@ -65,5 +66,31 @@ public class ConsultantService {
         return mapToConsultantResponse(consultant); // Ánh xạ Entity tìm được sang DTO
     }
 
-    // Có thể thêm các phương thức khác ở đây (create, update, delete...)
+    public ConsultantResponse updateConsultant(Long id, ConsultantUpdateRequest updateRequest) {
+        // 1. Tìm consultant hiện có trong DB, nếu không thấy sẽ ném ResourceNotFoundException
+        Consultant consultantToUpdate = consultantRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Consultant not found with id " + id));
+
+        // 2. Cập nhật các trường của entity từ DTO
+        consultantToUpdate.setFieldOfStudy(updateRequest.getFieldOfStudy());
+        consultantToUpdate.setDegreeLevel(updateRequest.getDegreeLevel());
+        consultantToUpdate.setIssuedDate(updateRequest.getIssuedDate());
+        consultantToUpdate.setExpiryDate(updateRequest.getExpiryDate());
+        consultantToUpdate.setOrganization(updateRequest.getOrganization());
+        consultantToUpdate.setSpecialities(updateRequest.getSpecialities());
+        consultantToUpdate.setExperience(updateRequest.getExperience());
+        consultantToUpdate.setRating(updateRequest.getRating());
+        consultantToUpdate.setConsultations(updateRequest.getConsultations());
+        consultantToUpdate.setBio(updateRequest.getBio());
+
+        // 3. Lưu entity đã được cập nhật vào DB
+        Consultant updatedConsultant = consultantRepository.save(consultantToUpdate);
+
+        // 4. Ánh xạ entity đã cập nhật sang DTO và trả về
+        return mapToConsultantResponse(updatedConsultant);
+    }
+
+
+
+
 }

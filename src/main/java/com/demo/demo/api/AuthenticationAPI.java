@@ -70,7 +70,7 @@ public class AuthenticationAPI {
         return ResponseEntity.ok("Nếu tài khoản tồn tại, một mã xác nhận đã được gửi đến email của bạn.");
     }
 
-    // --- API MỚI: ĐẶT LẠI MẬT KHẨU MỚI ---
+
     @PostMapping("/api/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
         try {

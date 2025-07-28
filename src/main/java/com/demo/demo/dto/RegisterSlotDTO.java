@@ -11,6 +11,6 @@ public class RegisterSlotDTO {
 
     LocalDate date;
     long consultantId;
-    List<Long> slotIds; // <-- THÊM TRƯỜNG NÀY
+    List<Long> slotIds;
 
 }

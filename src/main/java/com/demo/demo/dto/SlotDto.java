@@ -13,10 +13,8 @@ import java.time.LocalTime; // Đã sửa: Sử dụng LocalTime
 @NoArgsConstructor
 @AllArgsConstructor
 public class SlotDto {
-    // Đã sửa: Các trường sử dụng LocalTime
+
     private LocalTime slotStart;
     private LocalTime slotEnd;
 
-    // Constructor cũng sử dụng LocalTime
-    // Lombok @AllArgsConstructor sẽ tự tạo constructor này
 }

@@ -19,16 +19,15 @@ public class TokenService {
     @Autowired
     AuthenticationRepository authenticationRepository;
 
-    // Nên lưu Secret Key ở nơi an toàn hơn, không hardcode trực tiếp trong mã nguồn
     private final String SECRET_KEY = "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c";
 
     private SecretKey getSigninKey(){
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes); // Sử dụng thuật toán mặc định của Keys (thường là HS256)
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(Account account) {
-        // Đảm bảo Account không null trước khi tạo token
+
         if (account == null) {
             throw new IllegalArgumentException("Account cannot be null for token generation");
         }
@@ -63,8 +62,8 @@ public class TokenService {
         return  Jwts.parser()
                 .verifyWith(getSigninKey()) // Xác minh chữ ký
                 .build()
-                .parseSignedClaims(token) // Phân tích token đã ký
-                .getPayload(); // Lấy ra các Claims (payload)
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
 
@@ -83,7 +82,7 @@ public class TokenService {
 
     public String extractAccountRole(String token) {
 
-        return extractClaim(token, claims -> claims.get("role", String.class)); // <-- THÊM DÒNG NÀY
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
 
@@ -102,6 +101,5 @@ public class TokenService {
         return  claimsResolver.apply(claims);
     }
 
-    // Bạn có thể thêm phương thức để validate token ở đây nếu cần
-    // public boolean isValidToken(String token, UserDetails userDetails) { ... }
+
 }

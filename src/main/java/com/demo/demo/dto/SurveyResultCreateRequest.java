@@ -13,6 +13,4 @@ public class SurveyResultCreateRequest {
     private int score;
     private String riskLevel;
 
-    // Ghi chú: ID tài khoản KHÔNG còn trong phần thân yêu cầu.
-    // Nó sẽ được lấy từ người dùng đã được xác thực.
 }

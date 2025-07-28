@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class EmailDetail {
     private String recipient;
     private String subject;
-    private String body; // nội dung email, có thể là HTML
+    private String body;
 }

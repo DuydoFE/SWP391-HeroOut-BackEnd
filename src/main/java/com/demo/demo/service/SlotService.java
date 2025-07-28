@@ -45,7 +45,7 @@ public class SlotService {
 
 
         // So sánh ngày đăng ký với ngày hiện tại.
-        // LocalDate.now() sẽ lấy ngày hiện tại của hệ thống server.
+        // LocalDate.now()  lấy ngày hiện tại của hệ thống
         if (registerSlotDTO.getDate().isBefore(LocalDate.now())) {
             throw new BadRequestException("Không thể đăng ký lịch cho một ngày trong quá khứ.");
         }

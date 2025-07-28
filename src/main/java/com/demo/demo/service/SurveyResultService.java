@@ -26,14 +26,14 @@ public class SurveyResultService {
         this.accountRepository = accountRepository;
     }
 
-    // Method to get all survey results
+
     public List<SurveyResult> getAllSurveyResults() {
         return surveyResultRepository.findAll();
     }
 
-    // Method to get survey results by account ID
+
     public List<SurveyResult> getSurveyResultsByAccountId(Long accountId) {
-        // Optional: Check if account exists first
+
         if (!accountRepository.existsById(accountId)) {
             throw new EntityNotFoundException("Account with ID " + accountId + " not found.");
         }

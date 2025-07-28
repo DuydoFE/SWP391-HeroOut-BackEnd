@@ -15,7 +15,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class SurveyResult {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // <-- THÊM DÒNG NÀY
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne

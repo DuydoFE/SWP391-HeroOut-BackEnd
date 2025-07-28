@@ -1,4 +1,4 @@
-package com.demo.demo.api; // Changed package name
+package com.demo.demo.api;
 
 import com.demo.demo.entity.SurveyResult;
 import com.demo.demo.dto.SurveyResultCreateRequest;
@@ -14,8 +14,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/survey-results")
-@SecurityRequirement(name = "api")// Base path remains the same
-public class SurveyResultAPI { // Changed class name
+@SecurityRequirement(name = "api")
+public class SurveyResultAPI {
 
     private final SurveyResultService surveyResultService;
 
@@ -40,21 +40,11 @@ public class SurveyResultAPI { // Changed class name
         }
     }
 
-    // ----- PHƯƠNG THỨC POST ĐÃ ĐƯỢC CẬP NHẬT -----
-    /**
-     * Creates a new survey result for a specific account.
-     * The account ID is passed in the URL.
-     *
-     * @param request The request body containing survey score and risk level.
-     * @param accountId The ID of the account to which this survey result belongs.
-     * @return The created SurveyResult.
-     */
     @PostMapping("/account/{accountId}") // Endpoint is now more specific
     public ResponseEntity<SurveyResult> createSurveyResult(
             @RequestBody SurveyResultCreateRequest request,
             @PathVariable Long accountId) { // Get accountId from the path
 
-        // The hardcoded ID 'Long currentAccountId = 1L;' is now removed.
 
         try {
             // Pass the accountId from the URL directly to the service

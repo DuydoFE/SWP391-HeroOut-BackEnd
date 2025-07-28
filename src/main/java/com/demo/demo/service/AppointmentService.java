@@ -173,7 +173,7 @@ public class AppointmentService {
         }
     }
 
-    // --- START MODIFICATION ---
+
     private AppointmentResponse mapToAppointmentResponse(Appointment appointment) {
         AppointmentResponse response = new AppointmentResponse();
         response.setId(appointment.getId());

@@ -47,7 +47,7 @@ public class BlogService {
         blog.setDate(request.getDate());
         blog.setTags(request.getTags());
 
-        // Thêm dòng này để map trường image
+
         blog.setImage(request.getImage());
     }
 

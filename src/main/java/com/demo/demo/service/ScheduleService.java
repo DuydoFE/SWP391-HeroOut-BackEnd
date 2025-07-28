@@ -40,25 +40,25 @@ public class ScheduleService {
         }
 
         // Chuyển đổi giá trị boolean isBooked sang int 0 hoặc 1
-        int bookedStatusInt = schedule.isBooked() ? 1 : 0; // <-- Logic chuyển đổi
+        int bookedStatusInt = schedule.isBooked() ? 1 : 0;
 
-        // Lấy consultantId từ entity Schedule
-        Long currentConsultantId = null; // Sử dụng Long để có thể là null nếu cần
+
+        Long currentConsultantId = null;
         Consultant consultant = schedule.getConsultant();
         if (consultant != null) {
             currentConsultantId = consultant.getId();
         }
 
 
-        // Tạo ScheduleResponseDto với giá trị int và consultantId mới
+
         return new ScheduleResponseDto(
                 schedule.getId(),
                 schedule.getDate(),
                 schedule.getRecurrence(),
-                bookedStatusInt, // <-- Sử dụng giá trị int đã chuyển đổi
+                bookedStatusInt,
                 currentSlotId,
                 slotDto,
-                currentConsultantId // <-- Thêm consultantId vào đây
+                currentConsultantId
         );
     }
 
@@ -79,7 +79,7 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
-    // Optional: Method to get a single schedule by its own ID, returns DTO
+
     public ScheduleResponseDto getScheduleById(long id) {
         return scheduleRepository.findById(id)
                 .map(this::mapToDto)

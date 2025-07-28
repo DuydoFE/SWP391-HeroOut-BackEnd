@@ -49,8 +49,6 @@ public class AuthenticationAPI {
         // Gọi service để lấy account
         Account account = authenticationService.getAccountById(id);
 
-        // Kiểm tra nếu kh
-        // ông tìm thấy account
         if (account == null) {
             // Trả về 404 Not Found
             return ResponseEntity.notFound().build();
@@ -62,7 +60,6 @@ public class AuthenticationAPI {
     @PostMapping("/api/forgot-password")
     // Thay đổi Map<String, String> thành ForgotPasswordRequest
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        // Lấy email từ đối tượng request thay vì từ Map
         String email = request.getEmail();
 
         if (email == null || email.isEmpty()) {

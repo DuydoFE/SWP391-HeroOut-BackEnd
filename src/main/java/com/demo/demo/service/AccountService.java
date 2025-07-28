@@ -51,13 +51,7 @@ public class AccountService {
         // Với @Transactional, JPA sẽ tự động lưu khi transaction kết thúc.
     }
 
-    // ===== PHƯƠNG THỨC CẬP NHẬT AVATAR ĐÃ SỬA LỖI =====
-    /**
-     * Tìm một tài khoản bằng ID và cập nhật trường avatar của nó.
-     * @param accountId ID của tài khoản cần cập nhật.
-     * @param avatarUrl URL mới của avatar (nhận được từ Cloudinary).
-     * @throws RuntimeException nếu không tìm thấy tài khoản.
-     */
+
     @Transactional
     public void updateAvatar(Long accountId, String avatarUrl) {
         // Sử dụng orElseThrow để code gọn hơn và ném ra lỗi nếu không tìm thấy

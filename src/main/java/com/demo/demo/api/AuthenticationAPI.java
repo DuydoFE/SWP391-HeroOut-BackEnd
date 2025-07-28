@@ -58,7 +58,7 @@ public class AuthenticationAPI {
         return ResponseEntity.ok(account);
     }
     @PostMapping("/api/forgot-password")
-    // Thay đổi Map<String, String> thành ForgotPasswordRequest
+
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         String email = request.getEmail();
 
